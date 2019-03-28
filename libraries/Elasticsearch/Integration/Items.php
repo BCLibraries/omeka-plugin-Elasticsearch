@@ -1,6 +1,7 @@
 <?php
 
-class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseIntegration {
+class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseIntegration
+{
     protected $_hooks = array(
         'after_save_item',
         'after_save_file',
@@ -14,7 +15,8 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      *
      * @param array $args
      */
-    public function hookAfterSaveItem($args) {
+    public function hookAfterSaveItem($args)
+    {
         $this->_log("hookAfterSaveItem: {$args['record']->id}");
         $this->indexItem($args['record']);
     }
@@ -25,7 +27,8 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      *
      * @param array $args
      */
-    public function hookAfterDeleteItem($args) {
+    public function hookAfterDeleteItem($args)
+    {
         $this->_log("deleting item from index: {$args['record']->id}");
         $this->deleteItem($args['record']);
     }
@@ -36,10 +39,11 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      *
      * @param array $args
      */
-    public function hookAfterSaveFile($args) {
+    public function hookAfterSaveFile($args)
+    {
         $this->_log("hookAfterSaveFile: {$args['record']->id}");
         $file = $args['record'];
-        if($item = $file->getItem()) {
+        if ($item = $file->getItem()) {
             $this->indexItem($item);
         }
     }
@@ -50,10 +54,11 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      *
      * @param array $args
      */
-    public function hookAfterDeleteFile($args) {
+    public function hookAfterDeleteFile($args)
+    {
         $this->_log("hookAfterDeleteFile: {$args['record']->id}");
         $file = $args['record'];
-        if($item = $file->getItem()) {
+        if ($item = $file->getItem()) {
             $this->indexItem($item);
         }
     }
@@ -64,7 +69,8 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      * @param $item
      * @return array
      */
-    public function indexItem($item) {
+    public function indexItem($item)
+    {
         $doc = $this->getItemDocument($item);
         return $doc->index();
     }
@@ -74,7 +80,8 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      *
      * @param $item
      */
-    public function deleteItem($item) {
+    public function deleteItem($item)
+    {
         $doc = new Elasticsearch_Document($this->_docIndex, "item_{$item->id}");
         return $doc->delete();
     }
@@ -85,18 +92,20 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      * @param $item
      * @return Elasticsearch_Document
      */
-    public function getItemDocument($item) {
+    public function getItemDocument($item)
+    {
         $doc = new Elasticsearch_Document($this->_docIndex, "item_{$item->id}");
-        $doc->setFields([
-            'resulttype'=> 'Item',
-            'model'     => 'Item',
-            'modelid'   => $item->id,
-            'featured'  => (bool) $item->featured,
-            'public'    => (bool) $item->public,
-            'created'   => $this->_getDate($item->added),
-            'updated'   => $this->_getDate($item->modified),
-            'title'     => metadata($item, array('Dublin Core', 'Title'))
-        ]);
+        $fields = [
+            'resulttype' => 'Item',
+            'model' => 'Item',
+            'modelid' => $item->id,
+            'featured' => (bool)$item->featured,
+            'public' => (bool)$item->public,
+            'created' => $this->_getDate($item->added),
+            'updated' => $this->_getDate($item->modified),
+            'title' => metadata($item, array('Dublin Core', 'Title'))
+        ];
+        $doc->setFields(array_merge($fields, self::getLocalFields($item)));
 
         // collection:
         if ($collection = $item->getCollection()) {
@@ -122,12 +131,12 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
 
         // files:
         $files = [];
-        if($itemFiles = $item->getFiles()) {
-            foreach($itemFiles as $itemFile) {
+        if ($itemFiles = $item->getFiles()) {
+            foreach ($itemFiles as $itemFile) {
                 $fileElementTexts = $this->_getElementTexts($itemFile);
                 $files[] = [
-                    'id'      => $itemFile->id,
-                    'title'   => $itemFile->getProperty('display_title'),
+                    'id' => $itemFile->id,
+                    'title' => $itemFile->getProperty('display_title'),
                     'element' => $fileElementTexts['data']
                 ];
             }
@@ -142,10 +151,11 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      *
      * @return array
      */
-    public function getItemDocuments() {
+    public function getItemDocuments()
+    {
         $docs = [];
         $items = $this->_fetchObjects('Item');
-        foreach($items as $item) {
+        foreach ($items as $item) {
             $docs[] = $this->getItemDocument($item);
         }
 
@@ -155,10 +165,11 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
     /**
      * Index all items.
      */
-    public function indexAll() {
+    public function indexAll()
+    {
         $docs = $this->getItemDocuments();
-        if(isset($docs)) {
-            $this->_log('indexAll items: '.count($docs));
+        if (isset($docs)) {
+            $this->_log('indexAll items: ' . count($docs));
             Elasticsearch_Document::bulkIndex($docs);
         }
     }
@@ -166,7 +177,8 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
     /**
      * Deletes all items from the index.
      */
-    public function deleteAll() {
+    public function deleteAll()
+    {
         $this->_deleteByQueryModel('Item');
     }
 
@@ -176,8 +188,9 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      * @param $record
      * @return array
      */
-    protected function _getElementTexts($record, $options=array()) {
-        $opt_normalize = isset($options['normalize']) ? (bool) $options['normalize'] : true;
+    protected function _getElementTexts($record, $options = array())
+    {
+        $opt_normalize = isset($options['normalize']) ? (bool)$options['normalize'] : true;
 
         // Retrieve all of the element texts (each element could have several texts - multi-valued)
         $elementById = [];
@@ -185,36 +198,45 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
         try {
             foreach ($record->getAllElementTexts() as $elementText) {
                 $element = $record->getElementById($elementText->element_id);
-                if(!isset($elementById[$element->id])) {
-                    if($opt_normalize) {
+                if (!isset($elementById[$element->id])) {
+                    if ($opt_normalize) {
                         $nameNormalized = strtolower(preg_replace('/[^a-zA-Z0-9-_]/', '', $element->name));
                     } else {
                         $nameNormalized = $element->name;
                     }
                     $elementById[$element->id] = [
-                        'id'          => $element->id,
+                        'id' => $element->id,
                         'displayName' => $element->name,
-                        'name'        => $nameNormalized,
-                        'text'        => []
+                        'name' => $nameNormalized,
+                        'text' => []
                     ];
                     $elementOrderById[] = $element->id;
                 }
 
                 $elementById[$element->id]['text'][] = $elementText->text;
             }
-        } catch(Omeka_Record_Exception $e) {
-            $this->_log("Error loading elements for record {$record->id}. Error: ".$e->getMessage(), Zend_Log::WARN);
+        } catch (Omeka_Record_Exception $e) {
+            $this->_log("Error loading elements for record {$record->id}. Error: " . $e->getMessage(), Zend_Log::WARN);
         }
 
         // Divide the element data into an ordered array and a mapping object
         $elements = [];
         $element = [];
-        foreach($elementOrderById as $id) {
+        foreach ($elementOrderById as $id) {
             $data = $elementById[$id];
             $elements[] = $data;
             $element[$data['name']] = $data['text'];
         }
 
         return array('elements' => $elements, 'element' => $element);
+    }
+
+    public static function getLocalFields($item)
+    {
+        return [
+            'recipient' => strip_tags(metadata($item, ['Dublin Core', 'Format'])),
+            'sender' => strip_tags(metadata($item, ['Dublin Core', 'Creator'])),
+            'to' => strip_tags(metadata($item, ['Dublin Core', 'Spatial Coverage']))
+        ];
     }
 }

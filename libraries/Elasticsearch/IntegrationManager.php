@@ -7,9 +7,7 @@ class Elasticsearch_IntegrationManager {
      * @var array
      */
     protected static $_supportedPlugins = array(
-        'ExhibitBuilder' => 'Elasticsearch_Integration_Exhibits',
-        'SimplePages'    => 'Elasticsearch_Integration_SimplePages',
-        'Neatline'       => 'Elasticsearch_Integration_Neatline'
+        'NonFunctioning' => ''
     );
 
     /**
