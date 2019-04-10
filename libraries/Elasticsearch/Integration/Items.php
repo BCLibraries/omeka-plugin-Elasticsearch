@@ -211,7 +211,7 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
                     ];
                     $elementOrderById[] = $element->id;
                     if ($nameNormalized === 'date') {
-                        $new_date = DateTime::createFromFormat('Y-m-d', $elementText->text);
+                        $new_date = DateTime::createFromFormat('Y-m-d', trim($elementText->text));
                         $elementText->text = $new_date->format('Y-m-d');
                     }
                 }
