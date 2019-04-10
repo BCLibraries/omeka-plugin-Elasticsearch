@@ -236,14 +236,10 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
 
     private static function getLocalFields($item): array
     {
-        $fields = [
-            'recipient' => self::getMetadataField($item, 'Format'),
-            'sender' => self::getMetadataField($item, 'Creator'),
-            'to' => self::getMetadataField($item, 'Spatial Coverage'),
-            'models' => self::getMetadataField($item, 'Subject'),
-            'other_names' => self::getMetadataField($item, 'Relation')
-        ];
-
+        $fields = [];
+        foreach (Elasticsearch_Config::custom()->getFields() as $field) {
+            $fields[$field->getName()] = self::getMetadataField($item, $field->getDublinCore());
+        }
         return $fields;
     }
 

@@ -7,26 +7,14 @@ class Elasticsearch_Model_Aggregations
      *
      * @return array
      */
-    public static function getAggregations()
+    public static function getAggregationsParams(): array
     {
-        $aggregations = [
-            'recipients' => [
-                'terms' => [
-                    'field' => 'recipient'
-                ]
-            ],
-            'senders' =>  [
-                'terms' => [
-                    'field' => 'sender'
-                ]
-            ],
-            'tos' =>  [
-                'terms' => [
-                    'field' => 'to'
-                ]
-            ],
-        ];
-        return $aggregations;
+        $agg_params = [];
+        $aggregations = Elasticsearch_Config::custom()->getAggregations();
+        foreach ($aggregations as $aggregation) {
+            $agg_params[$aggregation->getName()] = $aggregation->getParamArray();
+        }
+        return $agg_params;
     }
 
     /**
@@ -34,12 +22,12 @@ class Elasticsearch_Model_Aggregations
      *
      * @return array
      */
-    public static function getAggregationLabels()
+    public static function getAggregationLabels(): array
     {
-        return [
-            'recipients' => 'Recipients',
-            'tos' => 'To',
-            'senders' => 'Senders'
-        ];
+        $labels = [];
+        foreach (Elasticsearch_Config::custom()->getAggregations() as $aggregation) {
+            $labels[$aggregation->getName()] = $aggregation->getLabel();
+        }
+        return $labels;
     }
 }

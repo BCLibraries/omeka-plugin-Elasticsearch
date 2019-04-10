@@ -27,7 +27,7 @@ class Elasticsearch_Model_Query
         // Main body of query
         $body = [
             'query' => ['bool' => []],
-            'aggregations' => Elasticsearch_Model_Aggregations::getAggregations()
+            'aggregations' => Elasticsearch_Model_Aggregations::getAggregationsParams()
         ];
 
         // Add must query

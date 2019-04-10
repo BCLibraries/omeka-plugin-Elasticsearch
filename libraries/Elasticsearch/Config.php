@@ -2,6 +2,7 @@
 
 class Elasticsearch_Config {
     protected static $_config;
+    protected static $_custom;
 
     public static function load() {
         if(self::$_config) {
@@ -9,6 +10,16 @@ class Elasticsearch_Config {
         }
         self::$_config = new Zend_Config_Ini(ELASTICSEARCH_PLUGIN_DIR.'/elasticsearch.ini');
         return self::$_config;
+    }
+
+    public static function custom(): Elasticsearch_Helper_ConfigReader
+    {
+        // @TODO better name!
+        if (self::$_custom) {
+            return self::$_custom;
+        }
+        self::$_custom = new Elasticsearch_Helper_ConfigReader(ELASTICSEARCH_PLUGIN_DIR . '/elasticsearch.json');
+        return self::$_custom;
     }
 
     public static function index() {

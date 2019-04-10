@@ -1,0 +1,110 @@
+{
+  "fields": [
+    {
+      "name": "recipient",
+      "dublin_core": "Format",
+      "label": "Recipient",
+      "type": "keyword",
+      "aggregation": {
+        "name": "recipient",
+        "label": "Recipient"
+      }
+    },
+    {
+      "name": "sender",
+      "dublin_core": "Creator",
+      "label": "Sender",
+      "type": "keyword",
+      "aggregation": {
+        "name": "sender",
+        "label": "Sender"
+      }
+    },
+    {
+      "name": "to",
+      "dublin_core": "Spatial Coverage",
+      "label": "To",
+      "type": "keyword",
+      "aggregation": {
+        "name": "to",
+        "label": "To"
+      }
+    },
+    {
+      "name": "from",
+      "dublin_core": "Coverage",
+      "label": "From",
+      "type": "keyword",
+      "aggregation": {
+        "name": "from",
+        "label": "From"
+      }
+    },
+    {
+      "name": "other_name",
+      "dublin_core": "Relation",
+      "label": "Other names",
+      "type": "keyword",
+      "aggregation": {
+        "name": "other_name",
+        "label": "Other names"
+      }
+    },
+    {
+      "name": "destinations",
+      "dublin_core": "Publisher",
+      "label": "Destinations",
+      "type": "keyword",
+      "aggregation": {
+        "name": "destination",
+        "label": "Destination"
+      }
+    },
+    {
+      "name": "grade",
+      "dublin_core": "Type",
+      "label": "Grade S.J.",
+      "type": "keyword",
+      "aggregation": {
+        "name": "grade",
+        "label": "Grade S.J."
+      }
+    },
+    {
+      "name": "anterior_desire",
+      "dublin_core": "Medium",
+      "label": "Anterior desire",
+      "type": "keyword",
+      "aggregation": {
+        "name": "anterior_desire",
+        "label": "Anterior desire"
+      }
+    },
+    {
+      "name": "left_for_mission",
+      "dublin_core": "Date Issued",
+      "label": "Left for mission lands",
+      "type": "keyword",
+      "aggregation": {
+        "name": "left_for_mission",
+        "label": "Left for mission lands"
+      }
+    },
+    {
+      "name": "language",
+      "dublin_core": "Language",
+      "label": "Language of the Letter",
+      "type": "keyword",
+      "aggregation": {
+        "name": "language",
+        "label": "Language of the Letter"
+      }
+    },
+    {
+      "name": "note",
+      "dublin_core": "Abstract",
+      "label": "Notes",
+      "type": "text"
+    }
+  ]
+}

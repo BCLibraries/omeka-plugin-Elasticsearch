@@ -48,8 +48,6 @@ class Elasticsearch_Model_IndexParams
             'title' => ['type' => 'text'],
             'description' => ['type' => 'text'],
             'text' => ['type' => 'text'],
-            'model' => ['type' => 'keyword'],
-            'modelid' => ['type' => 'integer'],
             'featured' => ['type' => 'boolean'],
             'public' => ['type' => 'boolean'],
             'created' => ['type' => 'date'],
@@ -103,12 +101,14 @@ class Elasticsearch_Model_IndexParams
         ];
     }
 
-    private static function getLocalProperties()
+    private static function getLocalProperties(): array
     {
-        return [
-            'recipient' => ['type' => 'keyword'],
-            'sender' => ['type' => 'keyword'],
-            'to' => ['type' => 'keyword']
-        ];
+        $fields = Elasticsearch_Config::custom()->getFields();
+        return array_map('Elasticsearch_Model_IndexParams::buildField', $fields);
+    }
+
+    private static function buildField(Elasticsearch_Model_Field $field)
+    {
+        return ['type' => $field->getType()];
     }
 }
