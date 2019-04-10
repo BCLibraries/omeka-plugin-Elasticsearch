@@ -57,6 +57,8 @@ class Elasticsearch_Document {
      */
     public function index() {
         $client = Elasticsearch_Client::create();
+        //echo "<pre>";
+        //print_r($this->getParams()); exit();
         return $client->index($this->getParams());
     }
 

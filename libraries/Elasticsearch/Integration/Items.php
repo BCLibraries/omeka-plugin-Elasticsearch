@@ -92,7 +92,7 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      * @param $item
      * @return Elasticsearch_Document
      */
-    public function getItemDocument($item)
+    public function getItemDocument(Item $item)
     {
         $doc = new Elasticsearch_Document($this->_docIndex, "item_{$item->id}");
         $fields = [
@@ -158,7 +158,6 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
         foreach ($items as $item) {
             $docs[] = $this->getItemDocument($item);
         }
-
         return $docs;
     }
 
@@ -211,10 +210,14 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
                         'text' => []
                     ];
                     $elementOrderById[] = $element->id;
+                    if ($nameNormalized === 'date') {
+                        $new_date = DateTime::createFromFormat('Y-m-d', $elementText->text);
+                        $elementText->text = $new_date->format('Y-m-d');
+                    }
                 }
-
-                $elementById[$element->id]['text'][] = $elementText->text;
+                $elementById[$element->id]['text'][] = trim($elementText->text);
             }
+
         } catch (Omeka_Record_Exception $e) {
             $this->_log("Error loading elements for record {$record->id}. Error: " . $e->getMessage(), Zend_Log::WARN);
         }
@@ -231,12 +234,21 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
         return array('elements' => $elements, 'element' => $element);
     }
 
-    public static function getLocalFields($item)
+    private static function getLocalFields($item): array
     {
-        return [
-            'recipient' => strip_tags(metadata($item, ['Dublin Core', 'Format'])),
-            'sender' => strip_tags(metadata($item, ['Dublin Core', 'Creator'])),
-            'to' => strip_tags(metadata($item, ['Dublin Core', 'Spatial Coverage']))
+        $fields = [
+            'recipient' => self::getMetadataField($item, 'Format'),
+            'sender' => self::getMetadataField($item, 'Creator'),
+            'to' => self::getMetadataField($item, 'Spatial Coverage'),
+            'models' => self::getMetadataField($item, 'Subject'),
+            'other_names' => self::getMetadataField($item, 'Relation')
         ];
+
+        return $fields;
+    }
+
+    private static function getMetadataField($item, string $field): string
+    {
+        return strip_tags(metadata($item, ['Dublin Core', $field]));
     }
 }
