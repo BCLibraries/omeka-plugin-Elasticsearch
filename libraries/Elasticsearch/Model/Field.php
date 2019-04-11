@@ -25,20 +25,20 @@ class Elasticsearch_Model_Field
     /**
      * @var string
      */
-    private $dublin_core;
+    private $origin;
 
     public function __construct(
         string $name,
         string $label,
         string $type,
-        string $dublin_core,
+        string $origin,
         Elasticsearch_Model_Aggregation $aggregation = null
     ) {
         $this->name = $name;
         $this->label = $label;
         $this->aggregation = $aggregation;
         $this->type = $type;
-        $this->dublin_core = $dublin_core;
+        $this->origin = $origin;
     }
 
     public function getName(): string
@@ -55,8 +55,8 @@ class Elasticsearch_Model_Field
         return $this->type;
     }
 
-    public function getDublinCore(): string {
-        return $this->dublin_core;
+    public function getOrigin(): string {
+        return $this->origin;
     }
 
     /**

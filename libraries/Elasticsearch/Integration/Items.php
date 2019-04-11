@@ -238,7 +238,17 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
     {
         $fields = [];
         foreach (Elasticsearch_Config::custom()->getFields() as $field) {
-            $value = trim(self::getMetadataField($item, $field->getDublinCore()));
+            $origin = $field->getOrigin();
+
+            if ($origin === 'Collection' && $collection = $item->getCollection()) {
+                $source = $item->getCollection();
+                $origin = 'Title';
+            } else {
+                $source = $item;
+            }
+
+            $value = trim(self::getMetadataField($source, $origin));
+
             if ($value) {
                 $fields[$field->getName()] = $value;
             }

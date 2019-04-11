@@ -80,7 +80,7 @@ class Elasticsearch_Helper_ConfigReader
             $field_json->name,
             $field_json->label,
             $field_json->type,
-            $field_json->dublin_core,
+            $field_json->origin,
             $agg
         );
         $this->fields[$field->getName()] = $field;
