@@ -46,6 +46,9 @@ class Elasticsearch_Helper_ConfigReader
 
     private function load(): void
     {
+        if (! file_exists($this->file)) {
+
+        }
         $json = json_decode(file_get_contents($this->file));
         $this->fields = [];
         $this->aggregations = [];

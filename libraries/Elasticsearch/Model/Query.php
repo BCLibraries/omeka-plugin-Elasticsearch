@@ -85,29 +85,18 @@ class Elasticsearch_Model_Query
      * user would like to drill down into, this function returns an array of filters
      * that can be used in an elasticsearch query to narrow the search results.
      *
-     * @param $facets
+     * @param $input_facets
      * @return array
      */
-    public static function getFacetFilters($facets)
+    public static function getFacetFilters($input_facets)
     {
+        $all_facets = Elasticsearch_Config::custom()->getAggregations();
         $filters = [];
-        if (isset($facets['tags'])) {
-            $filters[] = ['terms' => ['tags.keyword' => $facets['tags']]];
-        }
-        if (isset($facets['collection'])) {
-            $filters[] = ['term' => ['collection.keyword' => $facets['collection']]];
-        }
-        if (isset($facets['exhibit'])) {
-            $filters[] = ['term' => ['exhibit.keyword' => $facets['exhibit']]];
-        }
-        if (isset($facets['itemtype'])) {
-            $filters[] = ['term' => ['itemtype' => $facets['itemtype']]];
-        }
-        if (isset($facets['resulttype'])) {
-            $filters[] = ['term' => ['resulttype' => $facets['resulttype']]];
-        }
-        if (isset($facets['featured'])) {
-            $filters[] = ['term' => ['featured' => $facets['featured']]];
+        foreach ($all_facets as $label => $facet) {
+            $name = $facet->getName();
+            if (isset($input_facets[$name])) {
+                $filters[] = ['term' => [$name => $input_facets[$name]]];
+            }
         }
         return $filters;
     }
