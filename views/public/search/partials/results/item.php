@@ -18,7 +18,7 @@
     <?php $elements = $hit['_source']['elements']; ?>
     <?php foreach($elements as $element): ?>
         <li class="elasticsearch-element" title="element.<?php echo $element['name']; ?>">
-            <b><?php echo $element['displayName']; ?>:</b>
+            <b><?php echo __($element['displayName']); ?>:</b>
             <?php if(is_array($element['text'])): ?>
                 <?php if(count($element['text']) == 1): ?>
                     <?php echo $element['text'][0]; ?>
