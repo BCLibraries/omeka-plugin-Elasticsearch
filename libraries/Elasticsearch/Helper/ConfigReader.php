@@ -45,12 +45,12 @@ class Elasticsearch_Helper_ConfigReader
         if (!isset($this->fields)) {
             $this->load();
         }
-        return $this->fields;
+        return $this->fields;git p
     }
 
     private function load(): void
     {
-        $json = json_decode(file_get_contents($this->file));
+        $json = json_decode(file_get_contents($this->file), false);
         $this->fields = [];
         $this->aggregations = [];
         foreach ($json->fields as $field) {
