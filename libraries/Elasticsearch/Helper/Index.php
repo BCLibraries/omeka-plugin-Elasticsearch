@@ -1,5 +1,7 @@
 <?php
 
+use Elasticsearch\Client;
+
 /**
  * Helper class that does the work of indexing site content.
  */
@@ -10,10 +12,8 @@ class Elasticsearch_Helper_Index
      * Creates an index.
      *
      * Use this to initialize mappings and other settings on the index.
-     *
-     * @return void
      */
-    public static function createIndex()
+    public static function createIndex(): array
     {
         $params = Elasticsearch_Model_IndexParams::getIndexParams(self::docIndex());
         return self::client()->indices()->create($params);
@@ -25,7 +25,7 @@ class Elasticsearch_Helper_Index
      * Assumes that index auto-creation is enabled so that when items are re-indexed,
      * the index will be created automatically.
      */
-    public static function deleteIndex()
+    public static function deleteIndex(): void
     {
         $params = ['index' => self::docIndex()];
         if (self::client(['nobody' => true])->indices()->exists($params)) {
@@ -38,7 +38,7 @@ class Elasticsearch_Helper_Index
      *
      * @return void
      */
-    public static function indexAll()
+    public static function indexAll(): void
     {
         $docIndex = self::docIndex();
         Elasticsearch_IntegrationManager::create($docIndex)->indexAll();
@@ -49,7 +49,7 @@ class Elasticsearch_Helper_Index
      *
      * @return void
      */
-    public static function deleteAll()
+    public static function deleteAll(): void
     {
         $docIndex = self::docIndex();
         Elasticsearch_IntegrationManager::create($docIndex)->deleteAll();
@@ -60,7 +60,7 @@ class Elasticsearch_Helper_Index
      *
      * @return bool True if the server responded to the ping, false otherwise.
      */
-    public static function ping()
+    public static function ping(): bool
     {
         return self::client(['nobody' => true])->ping();
     }
@@ -68,27 +68,29 @@ class Elasticsearch_Helper_Index
     /**
      * Returns the elasticsearch client.
      *
-     * @return \Elasticsearch\Client
+     * @param array $options
+     * @return Client
      */
-    public static function client(array $options = array())
+    public static function client(array $options = []): Client
     {
         return Elasticsearch_Client::create($options);
     }
 
     /**
      * Returns the most recent jobs related to reindexing the site.
-     *
+     * 
+     * @param array $options
      * @return array
      */
-    public static function getReindexJobs(array $options = array())
+    public static function getReindexJobs(array $options = []): array
     {
-        $limit = isset($options['limit']) ? $options['limit'] : 10;
-        $order = isset($options['order']) ? $options['order'] : 'id desc';
+        $limit = $options['limit'] ?? 10;
+        $order = $options['order'] ?? 'id desc';
         $table = get_db()->getTable('Process');
         $select = $table->getSelect()->limit($limit)->order($order);
         $job_objects = $table->fetchObjects($select);
 
-        $reindex_jobs = array();
+        $reindex_jobs = [];
         foreach ($job_objects as $job_object) {
             // Because job args are serialized to a string using some combination of PHP serialize() and json_encode(),
             // just do a simple string search rather than try to deal with that.
@@ -100,24 +102,26 @@ class Elasticsearch_Helper_Index
         return $reindex_jobs;
     }
 
+
     /**
      * Executes a search query on an index
      *
-     * @param $query
      * @param $options
      * @return array
+     * @throws Zend_Exception
      */
     public static function search($options)
     {
+        //throw new Exception('searching');
         if (!isset($options['query']) || !is_array($options['query'])) {
-            throw new Exception("Query parameter is required to execute elasticsearch query.");
+            throw new Exception('Query parameter is required to execute elasticsearch query.');
         }
-        $query = $options['query'];
-        $offset = isset($options['offset']) ? $options['offset'] : 0;
-        $limit = isset($options['limit']) ? $options['limit'] : 20;
-        $terms = isset($options['query']['q']) ? $options['query']['q'] : '';
-        $facets = isset($options['query']['facets']) ? $options['query']['facets'] : [];
-        $sort = isset($options['sort']) ? $options['sort'] : null;
+        $offset = $options['offset'] ?? 0;
+        $limit = $options['limit'] ?? 20;
+        $terms = $options['query']['q'] ?? '';
+        $facets = $options['query']['facets'] ?? [];
+        $sort = $options['sort'] ?? null;
+        $advanced = $options['advanced'] ?? false;
 
         $acl = Zend_Registry::get('bootstrap')->getResource('Acl');
         $query = new Elasticsearch_Model_Query($terms, $facets, $offset, $limit, self::docIndex(), $acl);
@@ -134,7 +138,7 @@ class Elasticsearch_Helper_Index
      *
      * @return string
      */
-    public static function docIndex()
+    public static function docIndex(): string
     {
         return get_option('elasticsearch_index');
     }

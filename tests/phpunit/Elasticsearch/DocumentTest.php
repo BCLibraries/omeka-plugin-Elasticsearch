@@ -1,10 +1,14 @@
 <?php
 
+require_once __DIR__ . '/../../../libraries/Elasticsearch/Document.php';
+
 use PHPUnit\Framework\TestCase;
 
-class Elasticsearch_Document_Test extends TestCase {
+class Elasticsearch_Document_Test extends TestCase
+{
 
-    public function testParams() {
+    public function testParams()
+    {
         $docIndex = 'omeka';
         $docId = 123;
         $fields = [

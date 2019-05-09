@@ -28,7 +28,7 @@ class Elasticsearch_Model_IndexParams
      *
      * @return array
      */
-    private static function getMappings()
+    private static function getMappings(): array
     {
         $mappings = [
             'doc' => [

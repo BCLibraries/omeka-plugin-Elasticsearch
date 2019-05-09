@@ -1,5 +1,9 @@
 <?php
 
+// Don't rely on non-standard Omeka auto-loading.
+require_once __DIR__ . '/../Model/Aggregation.php';
+require_once __DIR__ . '/../Model/Field.php';
+
 class Elasticsearch_Helper_ConfigReader
 {
     /**
@@ -46,9 +50,6 @@ class Elasticsearch_Helper_ConfigReader
 
     private function load(): void
     {
-        if (! file_exists($this->file)) {
-
-        }
         $json = json_decode(file_get_contents($this->file));
         $this->fields = [];
         $this->aggregations = [];
