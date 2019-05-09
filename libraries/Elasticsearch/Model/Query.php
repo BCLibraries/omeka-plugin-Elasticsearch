@@ -14,7 +14,6 @@ class Elasticsearch_Model_Query
      * @param int $limit
      * @param string $index
      * @param Zend_Acl $acl
-     * @throws Zend_Exception
      */
     public function __construct(
         $terms,
@@ -31,6 +30,12 @@ class Elasticsearch_Model_Query
         ];
 
         // Add must query
+        $term_query = [
+            'term' => [
+                'title' => 'rome'
+            ]
+        ];
+
         if (empty($terms)) {
             $must_query = ['match_all' => new \stdClass()];
         } else {
@@ -38,10 +43,10 @@ class Elasticsearch_Model_Query
                 'query_string' => [
                     'query' => $terms,
                     'default_operator' => 'OR'
-                ]
+                ],
             ];
         }
-        $body['query']['bool']['must'] = $must_query;
+        $body['query']['bool']['must'] = [$must_query];
 
         // Add filters
         $showNotPublic = $acl->isAllowed(current_user(), 'Search', 'showNotPublic');
@@ -63,7 +68,7 @@ class Elasticsearch_Model_Query
         ];
     }
 
-    public function sort($sort)
+    public function sort($sort): void
     {
         if (isset($sort['field'])) {
             $this->body['sort'] = [
@@ -75,7 +80,7 @@ class Elasticsearch_Model_Query
         }
     }
 
-    public function export()
+    public function export(): array
     {
         return $this->params;
     }
@@ -88,7 +93,7 @@ class Elasticsearch_Model_Query
      * @param $input_facets
      * @return array
      */
-    public static function getFacetFilters($input_facets)
+    public static function getFacetFilters($input_facets): array
     {
         $all_facets = Elasticsearch_Config::custom()->getAggregations();
         $filters = [];

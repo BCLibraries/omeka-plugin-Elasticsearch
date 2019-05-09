@@ -1,17 +1,21 @@
 <?php
 
-class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionController {
+class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionController
+{
 
-    public function interceptorAction() {
-        $q_string = http_build_query(['q'=> $this->_request->getParam('query')]);
+    public function interceptorAction()
+    {
+        $q_string = http_build_query(['q' => $this->_request->getParam('query')]);
         return $this->_helper->redirector->gotoUrl("/elasticsearch/search/index?$q_string");
     }
 
-    public function indexAction() {
-        $limit = get_option('per_page_public');
-        $limit = isset($limit) ? $limit : 20;
-        $page = $this->_request->page ? $this->_request->page : 1;
+    public function indexAction(): void
+    {
+        $limit = (int)get_option('per_page_public');
+        $limit = $limit ?? 20;
+        $page = $this->_request->page ?: 1;
         $start = ($page - 1) * $limit;
+
         $query = $this->_getSearchParams();
         $sort = $this->_getSortParams();
 
@@ -19,17 +23,18 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
         $results = null;
         try {
             $results = Elasticsearch_Helper_Index::search([
-                'query'             => $query,
-                'sort'              => $sort,
-                'offset'            => $start,
-                'limit'             => $limit,
+                'query' => $query,
+                'sort' => $sort,
+                'offset' => $start,
+                'limit' => $limit,
+                'advanced' => $this->_request->getParam('adv', false)
             ]);
             Zend_Registry::set('pagination', [
                 'per_page' => $limit,
                 'page' => $page,
                 'total_results' => $results['hits']['total']
             ]);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             error_log($e->getMessage());
         }
 
@@ -37,24 +42,27 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
         $this->view->assign('results', $results);
     }
 
-    private function _getSearchParams() {
+    private function _getSearchParams(): array
+    {
         $query = [
-            'q'      => $this->_request->q, // search terms
+            'advanced' => $this->getParam('advanced') ?: false,
+            'q' => $this->_request->q, // search terms
             'facets' => []                  // facets to filter the search results
         ];
-        foreach($this->_request->getQuery() as $k => $v) {
-            if(strpos($k, 'facet_') === 0) {
+        foreach ($this->_request->getQuery() as $k => $v) {
+            if (strpos($k, 'facet_') === 0) {
                 $query['facets'][substr($k, strlen('facet_'))] = $v;
             }
         }
         return $query;
     }
 
-    private function _getSortParams() {
+    private function _getSortParams(): array
+    {
         $sort = [];
-        if($this->_request->sort_field) {
+        if ($this->_request->sort_field) {
             $sort['field'] = $this->_request->sort_field;
-            if($this->_request->sort_dir) {
+            if ($this->_request->sort_dir) {
                 $sort['dir'] = $this->_request->sort_dir;
             }
         }
