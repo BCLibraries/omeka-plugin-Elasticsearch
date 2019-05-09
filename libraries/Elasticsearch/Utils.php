@@ -51,11 +51,11 @@ class Elasticsearch_Utils {
      * Handles logic around facets that are arrays of values such as tags.
      *
      * @param $querystr
-     * @param $param The name of the facet parameter (e.g. itemType)
-     * @param $value The value that should associated with the parameter (e.g. "Still Image")
+     * @param $param string The name of the facet parameter (e.g. itemType)
+     * @param $value string The value that should associated with the parameter (e.g. "Still Image")
      * @return string The new query string with the facet added.
      */
-    public static function addFacetToQuery($querystr, $param, $value) {
+    public static function addFacetToQuery(string $querystr, string $param, $value):string {
         if(in_array($param, array('tags'))) {
             $item = urlencode("facet_{$param}[]")."=".urlencode($value);
         } else {
@@ -71,11 +71,11 @@ class Elasticsearch_Utils {
     /**
      * Removes a facet from a given query string and returns the new query string.
      *
-     * @param $querystr The query string to manipulate.
-     * @param $paramToRemove The name of the facet parameter to remove (e.g. itemType).
+     * @param $querystr string The query string to manipulate.
+     * @param $paramToRemove string The name of the facet parameter to remove (e.g. itemType).
      * @return string The new query string with the facet removed.
      */
-    public static function removeFacetFromQuery($querystr, $paramToRemove) {
+    public static function removeFacetFromQuery(string $querystr, string $paramToRemove):string {
         $old_items = explode('&', $querystr);
         $filtered = array();
         foreach($old_items as $item) {

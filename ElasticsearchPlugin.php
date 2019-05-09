@@ -7,8 +7,8 @@
  * @license https://opensource.org/licenses/BSD-3-Clause
  */
 
-define('ELASTICSEARCH_PLUGIN_DIR', dirname(__FILE__));
-require (ELASTICSEARCH_PLUGIN_DIR.'/autoload.php');
+define('ELASTICSEARCH_PLUGIN_DIR', __DIR__);
+require ELASTICSEARCH_PLUGIN_DIR.'/autoload.php';
 
 class ElasticsearchPlugin extends Omeka_Plugin_AbstractPlugin {
     protected $_hooks = array(
