@@ -45,7 +45,7 @@ class Elasticsearch_Helper_ConfigReader
         if (!isset($this->fields)) {
             $this->load();
         }
-        return $this->fields;git p
+        return $this->fields;
     }
 
     private function load(): void

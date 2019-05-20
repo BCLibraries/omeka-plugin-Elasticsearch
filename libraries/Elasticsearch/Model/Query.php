@@ -29,13 +29,6 @@ class Elasticsearch_Model_Query
             'aggregations' => Elasticsearch_Model_Aggregations::getAggregationsParams()
         ];
 
-        // Add must query
-        $term_query = [
-            'term' => [
-                'title' => 'rome'
-            ]
-        ];
-
         if (empty($terms)) {
             $must_query = ['match_all' => new \stdClass()];
         } else {

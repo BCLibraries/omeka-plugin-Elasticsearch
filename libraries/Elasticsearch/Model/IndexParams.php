@@ -53,8 +53,6 @@ class Elasticsearch_Model_IndexParams
             'created' => ['type' => 'date'],
             'updated' => ['type' => 'date'],
             'tags' => ['type' => 'keyword'],
-            'slug' => ['type' => 'keyword'],
-            'url' => ['type' => 'keyword'],
 
             // Item-Specific
             'collection' => [
@@ -79,25 +77,7 @@ class Elasticsearch_Model_IndexParams
                     'title' => ['type' => 'keyword'],
                     'element' => ['type' => 'object', 'dynamic' => true, 'properties' => new stdClass()]
                 ]
-            ],
-
-            // Exhibit-Specific
-            'credits' => ['type' => 'text'],
-            'exhibit' => [
-                'type' => 'text',
-                'fields' => ['keyword' => ['type' => 'keyword']]
-            ],
-            'blocks' => [
-                'type' => 'object',
-                'properties' => [
-                    'text' => ['type' => 'text'],
-                    'attachments' => ['type' => 'text']
-                ]
-            ],
-
-            // Neatline-Specific
-            'neatline' => ['type' => 'text'],
-            'neatlineRecords' => ['type' => 'integer', 'index' => false]
+            ]
         ];
     }
 

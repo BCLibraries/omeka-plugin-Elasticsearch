@@ -17,20 +17,32 @@ class Elasticsearch_Model_Aggregation
      */
     private $field;
 
-    public function __construct(string $name, string $label, string $field)
+    /**
+     * @var int
+     */
+    private $size;
+
+    public function __construct(string $name, string $label, string $field, int $size = null)
     {
         $this->name = $name;
         $this->label = $label;
         $this->field = $field;
+        $this->size = $size;
     }
 
     public function getParamArray(): array
     {
-        return [
+        $params = [
             'terms' => [
                 'field' => $this->field
             ]
         ];
+
+        if (isset($this->size)) {
+            $params['terms']['size'] = $this->size;
+        }
+
+        return $params;
     }
 
     public function getLabel(): string

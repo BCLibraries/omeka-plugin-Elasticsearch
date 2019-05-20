@@ -8,7 +8,7 @@ abstract class Elasticsearch_Integration_BaseIntegration implements Elasticsearc
     /**
      * Elasticsearch_Integration_BaseIntegration constructor.
      *
-     * @param $docIndex defines the elasticsearch index to use
+     * @param $docIndex string defines the elasticsearch index to use
      */
     public function __construct($docIndex) {
         $this->_docIndex = $docIndex;
@@ -54,6 +54,7 @@ abstract class Elasticsearch_Integration_BaseIntegration implements Elasticsearc
      *
      * @param $date
      * @return string
+     * @throws Exception
      */
     protected function _getDate($date) {
         $date = new DateTime($date);
@@ -82,6 +83,7 @@ abstract class Elasticsearch_Integration_BaseIntegration implements Elasticsearc
      * Deletes all indexed documents by their model keyword.
      *
      * @param string $model
+     * @return array
      */
     protected function _deleteByQueryModel($model) {
         $client = $this->_getClient();
