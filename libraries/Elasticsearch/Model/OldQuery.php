@@ -1,6 +1,6 @@
 <?php
 
-class Elasticsearch_Model_Query
+class Elasticsearch_Model_OldQuery
 {
     private $params;
     private $body;
@@ -26,7 +26,7 @@ class Elasticsearch_Model_Query
         // Main body of query
         $body = [
             'query' => ['bool' => []],
-            'aggregations' => Elasticsearch_Model_Aggregations::getAggregationsParams()
+            'aggregations' => self::getAggregationsParams()
         ];
 
         if (empty($terms)) {
@@ -97,5 +97,20 @@ class Elasticsearch_Model_Query
             }
         }
         return $filters;
+    }
+
+    /**
+     * Returns aggregations that should be returned for every search query.
+     *
+     * @return array
+     */
+    public static function getAggregationsParams(): array
+    {
+        $agg_params = [];
+        $aggregations = Elasticsearch_Config::custom()->getAggregations();
+        foreach ($aggregations as $aggregation) {
+            $agg_params[$aggregation->getName()] = $aggregation->toArray();
+        }
+        return $agg_params;
     }
 }

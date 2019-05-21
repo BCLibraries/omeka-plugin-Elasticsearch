@@ -30,7 +30,7 @@ class Elasticsearch_Model_Aggregation
         $this->size = $size;
     }
 
-    public function getParamArray(): array
+    public function toArray(): array
     {
         $params = [
             'terms' => [
