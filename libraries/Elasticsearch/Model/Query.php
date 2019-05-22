@@ -4,47 +4,54 @@ require_once __DIR__ . '/AggregationList.php';
 
 class Elasticsearch_Model_Query
 {
-    private $subqueries = [];
-    private $filters = [];
-    private $aggregations;
+    private $query_array;
 
-    /**
-     * @var int
-     */
-    private $offset;
-
-    /**
-     * @var int
-     */
-    private $limit;
+    public static function build(
+        array $subqueries,
+        array $filters,
+        Elasticsearch_Model_AggregationList $aggregations
+    ): Elasticsearch_Model_Query {
+        return new Elasticsearch_Model_Query($subqueries, $filters, $aggregations);
+    }
 
     public function __construct(
         array $subqueries,
         array $filters,
-        Elasticsearch_Model_AggregationList $aggregations,
-        int $offset = 0,
-        int $limit = 20
+        Elasticsearch_Model_AggregationList $aggregations
     ) {
-        $this->subqueries = $subqueries;
-        $this->filters = $filters;
-        $this->aggregations = $aggregations;
-        $this->offset = $offset;
-        $this->limit = $limit;
+        $this->query_array = [
+            'query' => [
+                'bool' => [
+                    'must' => array_map([$this, 'subQueryToArray'], $subqueries),
+                    'filter' => array_map([$this, 'subQueryToArray'], $filters)
+                ]
+            ],
+            'aggregations' => $aggregations->toObject(),
+            'sort' => ['_score']
+        ];
     }
 
     public function toArray(): array
     {
-        return [
-            'query' => [
-                'bool' => [
-                    'must' => array_map([$this, 'subQueryToArray'], $this->subqueries),
-                    'filter' => array_map([$this, 'subQueryToArray'], $this->filters)
-                ]
-            ],
-            'aggregations' => $this->aggregations->toObject(),
-            'from' => $this->offset,
-            'size' => $this->limit
-        ];
+        return $this->query_array;
+    }
+
+    public function offset(int $offset): Elasticsearch_Model_Query
+    {
+        $this->query_array['from'] = $offset;
+        return $this;
+    }
+
+    public function limit(int $limit): Elasticsearch_Model_Query
+    {
+        $this->query_array['size'] = $limit;
+        return $this;
+    }
+
+    public function sort(Elasticsearch_Model_Sort $sort): Elasticsearch_Model_Query
+    {
+        array_unshift($this->query_array['sort'], $sort->toArray());
+        return $this;
     }
 
     private function subQueryToArray(Elasticsearch_Model_SubQuery $subquery): array

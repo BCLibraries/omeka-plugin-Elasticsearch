@@ -24,7 +24,7 @@ class Elasticsearch_QueryBuilder
 
         $agglist = new Elasticsearch_Model_AggregationList($aggregations);
 
-        return new Elasticsearch_Model_Query($subqueries, $filters, $agglist);
+        return Elasticsearch_Model_Query::build($subqueries, $filters, $agglist);
     }
 
     private function buildSubQuery($field, $value): Elasticsearch_Model_SubQuery

@@ -7,6 +7,11 @@ use PHPUnit\Framework\TestCase;
 class Model_QueryTest extends TestCase
 {
     /**
+     * @var array
+     */
+    public $expected;
+
+    /**
      * @var Elasticsearch_Model_Query
      */
     protected $query;
@@ -41,8 +46,7 @@ class Model_QueryTest extends TestCase
 
         $filters = [$filter1, $filter2];
 
-        $this->query = new Elasticsearch_Model_Query($subqueries, $filters, $agg_list, 3, 14);
-
+        $this->query = Elasticsearch_Model_Query::build($subqueries, $filters, $agg_list);
     }
 
     public function testQueryBuildsArray(): void
@@ -52,15 +56,88 @@ class Model_QueryTest extends TestCase
         $expected = [
             'query' => [
                 'bool' => [
-                    'must' => [['subquery_1'],['subquery_2']],
-                    'filter' => [['filter_1'],['filter_2']]
+                    'must' => [['subquery_1'], ['subquery_2']],
+                    'filter' => [['filter_1'], ['filter_2']]
 
                 ]
             ],
             'aggregations' => $aggs,
-            'from' => 3,
-            'size' => 14
+            'sort' => ['_score']
         ];
+
         $this->assertEquals($expected, $this->query->toArray());
+    }
+
+    public function testSettingOffsetWorks(): void
+    {
+        $aggs = new stdClass();
+        $aggs->foo = 'bar';
+        $expected = [
+            'query' => [
+                'bool' => [
+                    'must' => [['subquery_1'], ['subquery_2']],
+                    'filter' => [['filter_1'], ['filter_2']]
+
+                ]
+            ],
+            'aggregations' => $aggs,
+            'sort' => ['_score'],
+            'from' => 13
+        ];
+
+        $this->query->offset(13);
+        $this->assertEquals($expected, $this->query->toArray());
+    }
+
+    public function testSettingLimitWorks(): void
+    {
+        $aggs = new stdClass();
+        $aggs->foo = 'bar';
+        $expected = [
+            'query' => [
+                'bool' => [
+                    'must' => [['subquery_1'], ['subquery_2']],
+                    'filter' => [['filter_1'], ['filter_2']]
+
+                ]
+            ],
+            'aggregations' => $aggs,
+            'sort' => ['_score'],
+            'size' => 5
+        ];
+
+        $this->query->limit(5);
+        $this->assertEquals($expected, $this->query->toArray());
+    }
+
+    public function testSortWorks(): void
+    {
+        $sort = $this->createMock(Elasticsearch_Model_Sort::class);
+        $sort->method('toArray')
+            ->willReturn(['foo' => 'asc']);
+        $aggs = new stdClass();
+        $aggs->foo = 'bar';
+        $expected = [
+            'query' => [
+                'bool' => [
+                    'must' => [['subquery_1'], ['subquery_2']],
+                    'filter' => [['filter_1'], ['filter_2']]
+
+                ]
+            ],
+            'aggregations' => $aggs,
+            'sort' => [['foo' => 'asc'], '_score']
+        ];
+
+        $this->query->sort($sort);
+        $this->assertEquals($expected, $this->query->toArray());
+    }
+
+    public function testInterfaceIsFluent(): void
+    {
+        $query_after_methods = $this->query->limit(12)
+            ->offset(2)
+            ->sort($this->createMock(Elasticsearch_Model_Sort::class));
+        $this->assertSame($query_after_methods, $this->query);
     }
 }
