@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__.'/../Exception/BadQueryException.php';
+
 class Elasticsearch_Model_QueryStringQuery implements Elasticsearch_Model_SubQuery
 {
     /**

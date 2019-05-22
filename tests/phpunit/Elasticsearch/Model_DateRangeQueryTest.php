@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../../../libraries/Elasticsearch/Model/SubQuery.php';
-require_once __DIR__ . '/../../../libraries/Elasticsearch/Exception/BadQueryException.php';
 require_once __DIR__ . '/../../../libraries/Elasticsearch/Model/DateRangeQuery.php';
 
 use PHPUnit\Framework\TestCase;

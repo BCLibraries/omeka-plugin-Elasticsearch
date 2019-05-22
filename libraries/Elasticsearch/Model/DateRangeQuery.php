@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/SubQuery.php';
+
 class Elasticsearch_Model_DateRangeQuery implements Elasticsearch_Model_SubQuery
 {
     /**
