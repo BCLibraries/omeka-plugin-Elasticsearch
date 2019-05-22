@@ -8,11 +8,28 @@ class Elasticsearch_Model_Query
     private $filters = [];
     private $aggregations;
 
-    public function __construct(array $subqueries, array $filters, Elasticsearch_Model_AggregationList $aggregations)
-    {
+    /**
+     * @var int
+     */
+    private $offset;
+
+    /**
+     * @var int
+     */
+    private $limit;
+
+    public function __construct(
+        array $subqueries,
+        array $filters,
+        Elasticsearch_Model_AggregationList $aggregations,
+        int $offset = 0,
+        int $limit = 20
+    ) {
         $this->subqueries = $subqueries;
         $this->filters = $filters;
         $this->aggregations = $aggregations;
+        $this->offset = $offset;
+        $this->limit = $limit;
     }
 
     public function toArray(): array
@@ -24,7 +41,9 @@ class Elasticsearch_Model_Query
                     'filter' => array_map([$this, 'subQueryToArray'], $this->filters)
                 ]
             ],
-            'aggregations' => $this->aggregations->toObject()
+            'aggregations' => $this->aggregations->toObject(),
+            'from' => $this->offset,
+            'size' => $this->limit
         ];
     }
 

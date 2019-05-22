@@ -41,7 +41,7 @@ class Model_QueryTest extends TestCase
 
         $filters = [$filter1, $filter2];
 
-        $this->query = new Elasticsearch_Model_Query($subqueries, $filters, $agg_list);
+        $this->query = new Elasticsearch_Model_Query($subqueries, $filters, $agg_list, 3, 14);
 
     }
 
@@ -57,7 +57,9 @@ class Model_QueryTest extends TestCase
 
                 ]
             ],
-            'aggregations' => $aggs
+            'aggregations' => $aggs,
+            'from' => 3,
+            'size' => 14
         ];
         $this->assertEquals($expected, $this->query->toArray());
     }
