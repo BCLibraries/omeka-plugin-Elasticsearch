@@ -54,6 +54,11 @@ class Elasticsearch_Model_Query
         return $this;
     }
 
+    public function addFilter(Elasticsearch_Model_SubQuery $filter)
+    {
+        $this->query_array['query']['bool']['filter'][] = $filter->toArray();
+    }
+
     private function subQueryToArray(Elasticsearch_Model_SubQuery $subquery): array
     {
         return $subquery->toArray();

@@ -26,8 +26,7 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
                 'query' => $query,
                 'sort' => $sort,
                 'offset' => $start,
-                'limit' => $limit,
-                'advanced' => $this->_request->getParam('adv', false)
+                'limit' => $limit
             ]);
             Zend_Registry::set('pagination', [
                 'per_page' => $limit,
@@ -45,15 +44,8 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
     private function _getSearchParams(): array
     {
         $query = [
-            'advanced' => $this->getParam('advanced') ?: false,
             'q' => $this->_request->q, // search terms
-            'facets' => []                  // facets to filter the search results
         ];
-        foreach ($this->_request->getQuery() as $k => $v) {
-            if (strpos($k, 'facet_') === 0) {
-                $query['facets'][substr($k, strlen('facet_'))] = $v;
-            }
-        }
         return $query;
     }
 

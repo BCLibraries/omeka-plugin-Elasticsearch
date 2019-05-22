@@ -11,6 +11,11 @@ class Elasticsearch_QueryBuilder
 {
     public function build(array $query_params, array $aggregations): Elasticsearch_Model_Query
     {
+        $size = 15;
+        $page = $query_params['page']?? 1;
+        $offset = ($page -1) * $size;
+        unset($query_params['page']);
+
         $facets = array_filter($query_params, [$this, 'isFacet'], ARRAY_FILTER_USE_KEY);
         $search_terms = array_diff_assoc($query_params, $facets);
 
@@ -24,7 +29,9 @@ class Elasticsearch_QueryBuilder
 
         $agglist = new Elasticsearch_Model_AggregationList($aggregations);
 
-        return Elasticsearch_Model_Query::build($subqueries, $filters, $agglist);
+        return Elasticsearch_Model_Query::build($subqueries, $filters, $agglist)
+            ->offset($offset)
+            ->limit($size);
     }
 
     private function buildSubQuery($field, $value): Elasticsearch_Model_SubQuery
@@ -58,12 +65,16 @@ class Elasticsearch_QueryBuilder
      * @param $value
      * @return Elasticsearch_Model_QueryStringQuery
      */
-    private function queryString($field, $value): Elasticsearch_Model_QueryStringQuery
+    private function queryString($field, $value): Elasticsearch_Model_SubQuery
     {
         $query = Elasticsearch_Model_QueryStringQuery::build($value);
 
-        if ($field !== 'any') {
+        if ($field !== 'q') {
             $query->defaultField($field);
+        } else {
+            if (!$value) {
+                $query = Elasticsearch_Model_MatchAllQuery::build();
+            }
         }
 
         return $query;

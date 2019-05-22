@@ -78,7 +78,7 @@ class Elasticsearch_Helper_Index
 
     /**
      * Returns the most recent jobs related to reindexing the site.
-     * 
+     *
      * @param array $options
      * @return array
      */
@@ -112,25 +112,14 @@ class Elasticsearch_Helper_Index
      */
     public static function search($options)
     {
-        //throw new Exception('searching');
-        if (!isset($options['query']) || !is_array($options['query'])) {
-            throw new Exception('Query parameter is required to execute elasticsearch query.');
-        }
-        $offset = $options['offset'] ?? 0;
-        $limit = $options['limit'] ?? 20;
-        $terms = $options['query']['q'] ?? '';
-        $facets = $options['query']['facets'] ?? [];
-        $sort = $options['sort'] ?? null;
-        $advanced = $options['advanced'] ?? false;
+        $builder = new Elasticsearch_QueryBuilder();
+        $query = $builder->build($_GET, Elasticsearch_Config::custom()->getAggregations());
 
         $acl = Zend_Registry::get('bootstrap')->getResource('Acl');
-        $query = new Elasticsearch_Model_Query($terms, $facets, $offset, $limit, self::docIndex(), $acl);
-        $query->sort($sort);
-        $params = $query->export();
-
-        _log("elasticsearch search params:\n" . json_encode($params, JSON_PRETTY_PRINT), Zend_Log::DEBUG);
-
-        return self::client()->search($params);
+        if (!$acl->isAllowed(current_user(), 'Search', 'showNotPublic')) {
+            //$query->addFilter(Elasticsearch_Model_TermQuery::build('public', true));
+        }
+        return self::sendSearchQuery($query);
     }
 
     /**
@@ -141,6 +130,38 @@ class Elasticsearch_Helper_Index
     public static function docIndex(): string
     {
         return get_option('elasticsearch_index');
+    }
+
+    /**
+     * @param Elasticsearch_Model_Query $query
+     * @return mixed
+     */
+    private static function sendSearchQuery(Elasticsearch_Model_Query $query)
+    {
+        $data_string = json_encode($query->toArray());
+
+        // create curl resource
+        $ch = curl_init();
+
+        // set url
+        curl_setopt($ch, CURLOPT_URL, 'localhost/indipetae/_search');
+        curl_setopt($ch, CURLOPT_PORT, 9200);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string)
+            )
+        );
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        return json_decode($output, true);
     }
 
 }
