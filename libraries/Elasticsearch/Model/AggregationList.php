@@ -2,27 +2,25 @@
 
 class Elasticsearch_Model_AggregationList
 {
-    private $aggregations_array;
+    /**
+     * @var stdClass
+     */
+    private $aggregations;
 
-    public static function build(array $aggregations = []): Elasticsearch_Model_AggregationList
+    public function __construct(array $aggregations = [])
     {
-        $aggregationList = new Elasticsearch_Model_AggregationList();
-        array_walk($aggregations, [$aggregationList, 'add']);
-        return $aggregationList;
+        $this->aggregations = new stdClass();
+        foreach ($aggregations as $aggregation) {
+            $this->add($aggregation);
+        }
     }
 
-    private function __construct()
+    public function add(Elasticsearch_Model_Aggregation $aggregation): void
     {
-        $this->aggregations_array = [];
+        $this->aggregations->{$aggregation->getName()} = $aggregation->toArray();
     }
 
-    public function add(Elasticsearch_Model_Aggregation $aggregation): Elasticsearch_Model_AggregationList
-    {
-        $this->aggregations_array[$aggregation->getName()] = $aggregation->toArray();
-        return $this;
-    }
-
-    public function toArray(): array {
-        return $this->aggregations_array;
+    public function toObject(): stdClass {
+        return  $this->aggregations;
     }
 }

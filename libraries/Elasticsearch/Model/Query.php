@@ -1,6 +1,5 @@
 <?php
 
-require_once __DIR__ . '/SubQuery.php';
 require_once __DIR__ . '/AggregationList.php';
 
 class Elasticsearch_Model_Query
@@ -25,7 +24,7 @@ class Elasticsearch_Model_Query
                     'filter' => array_map([$this, 'subQueryToArray'], $this->filters)
                 ]
             ],
-            'aggregations' => $this->aggregations->toArray()
+            'aggregations' => $this->aggregations->toObject()
         ];
     }
 
