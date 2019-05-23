@@ -55,4 +55,8 @@ class Elasticsearch_Model_Aggregation
         return $this->name;
     }
 
+    public function getField(): string {
+        return $this->field;
+    }
+
 }

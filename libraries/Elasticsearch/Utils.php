@@ -9,7 +9,8 @@ class Elasticsearch_Utils {
      * @param $label
      * @return string
      */
-    public static function nav_li($current, $url, $label) {
+    public static function nav_li($current, $url, $label): string
+    {
         $cssClass = ($current ? ' class="current"' : '');
         return "<li$cssClass><a href=\"$url\">$label</a></li>";
     }
@@ -21,7 +22,8 @@ class Elasticsearch_Utils {
      * @param $hit a hit from an elasticsearch query
      * @return string an omeka URL to the object
      */
-    public static function getDocumentUrl($hit) {
+    public static function getDocumentUrl($hit): string
+    {
         $source = $hit['_source'];
         $record = self::getRecord($hit);
         if(isset($record)) {
@@ -56,7 +58,7 @@ class Elasticsearch_Utils {
      * @return string The new query string with the facet added.
      */
     public static function addFacetToQuery(string $querystr, string $param, $value):string {
-        if(in_array($param, array('tags'))) {
+        if($param === 'tags') {
             $item = urlencode("facet_{$param}[]")."=".urlencode($value);
         } else {
             $item = "facet_{$param}=".urlencode($value);
@@ -91,9 +93,12 @@ class Elasticsearch_Utils {
      *
      * When the value is an array, returns the value as a comma-separated string.
      *
+     * @param $value
+     * @param string $glue
      * @return string
      */
-    public static function facetVal2Str($value, $glue=", ") {
+    public static function facetVal2Str($value, $glue= ', '): string
+    {
         return is_array($value) ? implode($glue, $value) : $value;
     }
 
@@ -103,10 +108,11 @@ class Elasticsearch_Utils {
      * @param array $query
      * @return string
      */
-    public static function getQueryString($query) {
-        $terms = isset($query['q']) ? $query['q'] : '';
-        $facets = isset($query['facets']) ? $query['facets'] : array();
-        $querystr = "q=".urlencode($terms);
+    public static function getQueryString($query): string
+    {
+        $terms = $query['q'] ?? '';
+        $facets = $query['facets'] ?? array();
+        $querystr = 'q=' .urlencode($terms);
 
         foreach($facets as $facet_name => $facet_values) {
             if(is_array($facet_values)) {
@@ -129,7 +135,8 @@ class Elasticsearch_Utils {
      * @param boolean $ellipsis show an ellipsis or not
      * @return string
      */
-    public static function truncateText($text, $length, $ellipsis=true) {
+    public static function truncateText($text, $length, $ellipsis=true): string
+    {
         $truncated = substr($text, 0, $length);
         if($ellipsis && strlen($truncated) > $length) {
             return "$truncated...";
@@ -151,8 +158,10 @@ class Elasticsearch_Utils {
      * allowed.
      *
      * @return boolean
+     * @throws Zend_Exception
      */
-    public static function hasAdminPermission() {
+    public static function hasAdminPermission(): bool
+    {
         $user = Zend_Registry::get('bootstrap')->getResource('CurrentUser');
         if(!$user) {
             return false;
