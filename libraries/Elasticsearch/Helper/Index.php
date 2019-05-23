@@ -140,6 +140,8 @@ class Elasticsearch_Helper_Index
     {
         $data_string = json_encode($query->toArray());
 
+        //echo $data_string; exit();
+
         // create curl resource
         $ch = curl_init();
 
@@ -160,6 +162,8 @@ class Elasticsearch_Helper_Index
 
         // $output contains the output string
         $output = curl_exec($ch);
+
+        //echo $output; exit();
 
         return json_decode($output, true);
     }

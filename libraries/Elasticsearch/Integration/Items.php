@@ -258,6 +258,9 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
 
     private static function getMetadataField($item, string $field): string
     {
+        if ($field === 'Collection') {
+            return $item->getDisplayTitle(); // @todo make this work!
+        }
         return strip_tags(metadata($item, ['Dublin Core', $field]));
     }
 }

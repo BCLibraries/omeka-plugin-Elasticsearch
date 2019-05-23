@@ -59,6 +59,9 @@ class Elasticsearch_Model_IndexParams
                 'type' => 'text',
                 'fields' => ['keyword' => ['type' => 'keyword']]
             ],
+            'facet_collection' => [
+                'type' => 'keyword',
+            ],
             'itemtype' => ['type' => 'keyword'],
             'element' => ['type' => 'object', 'dynamic' => true, 'properties' => new stdClass()],
             'elements' => [
