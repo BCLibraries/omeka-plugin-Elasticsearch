@@ -9,12 +9,23 @@ require_once __DIR__ . '/Model/Query.php';
 
 class Elasticsearch_QueryBuilder
 {
+
+    /**
+     * Build a query
+     *
+     * @param array $query_params values set in query string
+     * @param Elasticsearch_Model_Aggregation[] $aggregations
+     * @return Elasticsearch_Model_Query
+     * @throws Elasticsearch_Exception_BadQueryException
+     */
     public function build(array $query_params, array $aggregations): Elasticsearch_Model_Query
     {
         $size = 15;
-        $page = $query_params['page']?? 1;
-        $offset = ($page -1) * $size;
-        unset($query_params['page']);
+        $page = $query_params['page'] ?? 1;
+        $sort = $query_params['sort'] ?? null;
+        $sort_dir = $query_params['sort_dir'] ?? 'asc';
+        $offset = ($page - 1) * $size;
+        unset($query_params['page'], $query_params['sort'], $query_params['sort_dir']);
 
         $facets = array_filter($query_params, [$this, 'isFacet'], ARRAY_FILTER_USE_KEY);
         $search_terms = array_diff_assoc($query_params, $facets);
@@ -29,9 +40,15 @@ class Elasticsearch_QueryBuilder
 
         $agglist = new Elasticsearch_Model_AggregationList($aggregations);
 
-        return Elasticsearch_Model_Query::build($subqueries, $filters, $agglist)
+        $query = Elasticsearch_Model_Query::build($subqueries, $filters, $agglist)
             ->offset($offset)
             ->limit($size);
+
+        if ($sort) {
+            $query->sort(new Elasticsearch_Model_Sort($sort, $sort_dir));
+        }
+
+        return $query;
     }
 
     private function buildSubQuery($field, $value): Elasticsearch_Model_SubQuery

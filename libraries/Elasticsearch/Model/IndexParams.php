@@ -92,6 +92,10 @@ class Elasticsearch_Model_IndexParams
 
     private static function buildField(Elasticsearch_Model_Field $field)
     {
-        return ['type' => $field->getType()];
+        $json = ['type' => $field->getType()];
+        if ($field->getType() === 'date') {
+            $json['format'] = 'yyyy-00-00||yyyy-MM-00||yyyy-MM-dd';
+        }
+        return $json;
     }
 }

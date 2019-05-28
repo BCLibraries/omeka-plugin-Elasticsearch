@@ -37,8 +37,11 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
             error_log($e->getMessage());
         }
 
+        $sorts = $this->buildSortOptions();
+
         $this->view->assign('query', $query);
         $this->view->assign('results', $results);
+        $this->view->assign('sorts', $sorts);
     }
 
     private function _getSearchParams(): array
@@ -60,4 +63,58 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
         }
         return $sort;
     }
+
+    /**
+     * @return array
+     * @throws Elasticsearch_Exception_BadQueryException
+     */
+    private function buildSortOptions(): array
+    {
+        $current_sort = null;
+
+        if ($this->_request->sort) {
+            $sort_dir = $this->_request->sort_dir ?: 'asc';
+            $current_sort = new Elasticsearch_Model_Sort($this->_request->sort, $sort_dir);
+        }
+
+        $sort_options = [
+            [
+                'label' => 'Newest',
+                'sort' => new Elasticsearch_Model_Sort('facet_date', 'desc'),
+            ],
+            [
+                'label' => 'Oldest',
+                'sort' => new Elasticsearch_Model_Sort('facet_date'),
+            ],
+            [
+                'label' => 'Sender (A-Z)',
+                'sort' => new Elasticsearch_Model_Sort('facet_sender'),
+            ],
+            [
+                'label' => 'Sender (Z-A)',
+                'sort' => new Elasticsearch_Model_Sort('facet_sender', 'desc'),
+            ],
+            [
+                'label' => 'From (A-Z)',
+                'sort' => new Elasticsearch_Model_Sort('facet_from'),
+            ],
+            [
+                'label' => 'From (Z-A)',
+                'sort' => new Elasticsearch_Model_Sort('facet_from', 'desc'),
+            ],
+            [
+                'label' => 'Relevance',
+                'sort' => new Elasticsearch_Model_Sort('_score', 'desc'),
+            ],
+        ];
+
+        return array_map(function ($option) use ($current_sort) {
+            if ($option['sort'] == $current_sort) {
+                $option['selected'] = 'selected';
+            }
+            return $option;
+        }, $sort_options);
+    }
+
+
 }
