@@ -23,13 +23,13 @@ $url_without_facets = get_view()->url('/elasticsearch') . '?q=' . urlencode($que
 <div id="elasticsearch-filters">
     <h3>Filters</h3>
     <?php foreach ($result_facets as $facet): ?>
-        <h4><?= $facet->label ?></h4>
-        <ul>
-            <?php foreach ($facet->buckets as $bucket): ?>
-                <li>
-                    <a href="<?= $bucket->url() ?>"><?= $bucket->value ?></a> (<?= $bucket->count ?>)
-                </li>
-            <?php endforeach; ?>
-        </ul>
+            <h4><?= $facet->label ?></h4>
+            <ul>
+                <?php foreach ($facet->buckets as $bucket): ?>
+                    <li>
+                        <a href="<?= $bucket->url() ?>"><?= $bucket->value ?></a> (<?= $bucket->count ?>)
+                    </li>
+                <?php endforeach; ?>
+            </ul>
     <?php endforeach; ?>
 </div>
