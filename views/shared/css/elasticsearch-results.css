@@ -1,7 +1,5 @@
 .elasticsearch-result {
     border-bottom: 1px solid #ccc;
-    overflow: auto;
-    clear: both;
 }
 .elasticsearch-result ul {
     list-style-type: none;
@@ -26,10 +24,6 @@
     margin-top: 10px;
     clear: both;
 }
-#elasticsearch-results {
-    margin-bottom: 25px;
-    clear: both;
-}
 #elasticsearch-search-form input {
     height: 40px;
     padding: 0.5em;
@@ -52,28 +46,4 @@
 }
 #elasticsearch-timing {
     clear: both;
-}
-#elasticsearch-sidebar {
-    float: left;
-    width: 300px;
-    margin: 0;
-    padding: 10px;
-}
-#elasticsearch-results {
-    float: left;
-    clear: right;
-    width: calc(100% - 340px);
-    margin: 0;
-    padding: 10px;
-}
-
-@media screen and (max-width: 960px) {
-    #elasticsearch-sidebar {
-        float: none;
-        width: auto;
-    }
-    #elasticsearch-results {
-        float: none;
-        width: auto;
-    }
 }

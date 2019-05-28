@@ -37,7 +37,7 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
             error_log($e->getMessage());
         }
 
-        $sorts = $this->buildSortOptions();
+        $sorts = $this->buildSortOptionList();
 
         $this->view->assign('query', $query);
         $this->view->assign('results', $results);
@@ -68,9 +68,9 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
      * @return array
      * @throws Elasticsearch_Exception_BadQueryException
      */
-    private function buildSortOptions(): array
+    private function buildSortOptionList(): array
     {
-        $current_sort = null;
+        $current_sort = new Elasticsearch_Model_Sort('_score', 'desc');
 
         if ($this->_request->sort) {
             $sort_dir = $this->_request->sort_dir ?: 'asc';
@@ -78,43 +78,29 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
         }
 
         $sort_options = [
-            [
-                'label' => 'Newest',
-                'sort' => new Elasticsearch_Model_Sort('facet_date', 'desc'),
-            ],
-            [
-                'label' => 'Oldest',
-                'sort' => new Elasticsearch_Model_Sort('facet_date'),
-            ],
-            [
-                'label' => 'Sender (A-Z)',
-                'sort' => new Elasticsearch_Model_Sort('facet_sender'),
-            ],
-            [
-                'label' => 'Sender (Z-A)',
-                'sort' => new Elasticsearch_Model_Sort('facet_sender', 'desc'),
-            ],
-            [
-                'label' => 'From (A-Z)',
-                'sort' => new Elasticsearch_Model_Sort('facet_from'),
-            ],
-            [
-                'label' => 'From (Z-A)',
-                'sort' => new Elasticsearch_Model_Sort('facet_from', 'desc'),
-            ],
-            [
-                'label' => 'Relevance',
-                'sort' => new Elasticsearch_Model_Sort('_score', 'desc'),
-            ],
+            $this->buildSortOption('Newest', 'facet_date', 'desc'),
+            $this->buildSortOption('Oldest', 'facet_date'),
+            $this->buildSortOption('Sender (A-Z)', 'facet_sender'),
+            $this->buildSortOption('Sender (Z-A)', 'facet_sender', 'desc'),
+            $this->buildSortOption('From (A-Z)', 'facet_from'),
+            $this->buildSortOption('From (Z-A)', 'facet_from','desc'),
+            $this->buildSortOption('Relevance', '_score', 'desc')
         ];
 
-        return array_map(function ($option) use ($current_sort) {
-            if ($option['sort'] == $current_sort) {
-                $option['selected'] = 'selected';
+        return array_map(function (stdClass $option) use ($current_sort) {
+            if ($option->sort == $current_sort) {
+                $option->selected = 'selected';
             }
             return $option;
         }, $sort_options);
     }
 
-
+    private function buildSortOption(string $label, string $field, string $direction = 'asc')
+    {
+        $option = new stdClass();
+        $option->sort = new Elasticsearch_Model_Sort($field, $direction);
+        $option->url = $option->sort->url();
+        $option->label = $label;
+        return $option;
+    }
 }
