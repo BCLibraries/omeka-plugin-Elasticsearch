@@ -23,14 +23,25 @@ class Elasticsearch_Model_FacetBucket
      */
     public $count;
 
+    /**
+     * @var string
+     */
+    public $display_value;
+
     // @todo Add testing for facet buckets
 
-    public function __construct(string $field, string $label, string $value, string $count = null)
-    {
+    public function __construct(
+        string $field,
+        string $label,
+        string $value,
+        string $display_value,
+        string $count = null
+    ) {
         $this->field = $field;
         $this->label = $label;
         $this->value = $value;
         $this->count = $count;
+        $this->display_value = $display_value;
     }
 
     public function url(): string
@@ -38,14 +49,14 @@ class Elasticsearch_Model_FacetBucket
         $query_data = $_GET;
         unset($query_data[$this->field], $query_data['page']);
         $query_data[$this->field] = $this->value;
-        return $this->urlWithoutQuery().'?'.http_build_query($query_data);
+        return $this->urlWithoutQuery() . '?' . http_build_query($query_data);
     }
 
     public function removeUrl(): string
     {
         $query_data = $_GET;
         unset($query_data[$this->field], $query_data['page']);
-        return $this->urlWithoutQuery().'?'.http_build_query($query_data);
+        return $this->urlWithoutQuery() . '?' . http_build_query($query_data);
     }
 
     /**

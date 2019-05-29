@@ -27,18 +27,31 @@ class Elasticsearch_Model_Field
      */
     private $origin;
 
+    /**
+     * @var string
+     */
+    private $regex;
+    /**
+     * @var string
+     */
+    private $format;
+
     public function __construct(
         string $name,
         string $label,
         string $type,
         string $origin,
-        Elasticsearch_Model_Aggregation $aggregation = null
+        Elasticsearch_Model_Aggregation $aggregation = null,
+        string $format = null,
+        string $regex = null
     ) {
         $this->name = $name;
         $this->label = $label;
         $this->aggregation = $aggregation;
         $this->type = $type;
         $this->origin = $origin;
+        $this->regex = $regex;
+        $this->format = $format;
     }
 
     public function getName(): string
@@ -57,6 +70,14 @@ class Elasticsearch_Model_Field
 
     public function getOrigin(): string {
         return $this->origin;
+    }
+
+    public function getRegex(): ?string {
+        return $this->regex;
+    }
+
+    public function getFormat(): ?string {
+        return $this->format;
     }
 
     /**

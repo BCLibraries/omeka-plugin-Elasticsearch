@@ -105,6 +105,7 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
             'updated' => $this->_getDate($item->modified),
             'title' => metadata($item, array('Dublin Core', 'Title'))
         ];
+
         $doc->setFields(array_merge($fields, self::getLocalFields($item)));
 
         // collection:
@@ -249,7 +250,19 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
 
             $value = trim(self::getMetadataField($source, $origin));
 
+            if ($value && $field->getRegex()) {
+                $matches = [];
+                preg_match($field->getRegex(), $value, $matches);
+                $value = $matches[0];
+            }
+
             if ($value) {
+                error_log("Value is $value");
+
+                if ($field->getType() === 'integer') {
+                    $value = (int) $value;
+                }
+
                 $fields[$field->getName()] = $value;
             }
         }

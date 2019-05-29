@@ -82,7 +82,9 @@ class Elasticsearch_Helper_ConfigReader
             $field_json->label,
             $field_json->type,
             $field_json->origin,
-            $agg
+            $agg,
+            $field_json->format ?? null,
+            $field_json->regex ?? null
         );
         $this->fields[$field->getName()] = $field;
     }

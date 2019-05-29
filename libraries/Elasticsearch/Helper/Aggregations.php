@@ -37,10 +37,13 @@ class Elasticsearch_Helper_Aggregations
 
         foreach (self::getAllAggregations() as $aggregation) {
             if (isset($_GET[$aggregation->getField()])) {
-                $applied_facets[$aggregation->getField()] = new Elasticsearch_Model_FacetBucket(
+                $applied_facets[$aggregation->getField()] = new Elasticsearch_Model_FacetBucket
+                (
                     $aggregation->getField(),
                     htmlspecialchars($aggregation->getLabel()),
-                    htmlspecialchars(Elasticsearch_Utils::facetVal2Str($_GET[$aggregation->getField()])));
+                    htmlspecialchars(Elasticsearch_Utils::facetVal2Str($_GET[$aggregation->getField()])),
+                    htmlspecialchars(Elasticsearch_Utils::facetVal2Str($_GET[$aggregation->getField()]))
+                );
             }
         }
         return $applied_facets;
@@ -71,6 +74,7 @@ class Elasticsearch_Helper_Aggregations
                     $aggregation->getField(),
                     $aggregation->getLabel(),
                     $bucket['key'],
+                    $bucket['key_as_string'] ?? $bucket['key'],
                     $bucket['doc_count']
                 );
             }
