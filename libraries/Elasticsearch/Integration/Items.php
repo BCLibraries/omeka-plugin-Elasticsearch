@@ -248,32 +248,36 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
                 $source = $item;
             }
 
-            $value = trim(self::getMetadataField($source, $origin));
+            $values = self::getMetadataValue($source, $origin);
 
-            if ($value && $field->getRegex()) {
-                $matches = [];
-                preg_match($field->getRegex(), $value, $matches);
-                $value = $matches[0];
+            if ($field->getRegex()) {
+                $regex = $field->getRegex();
+                $values = array_map(function($value) use ($regex) {
+                    $matches = [];
+                    preg_match($regex, $value, $matches);
+                    $value = $matches[0];
+                    return $value;
+                },$values);
             }
 
-            if ($value) {
-                error_log("Value is $value");
-
-                if ($field->getType() === 'integer') {
-                    $value = (int) $value;
-                }
-
-                $fields[$field->getName()] = $value;
+            if ($field->getType() === 'integer') {
+                $values = array_map('intval',$values);
             }
+
+            $fields[$field->getName()] = $values;
         }
         return $fields;
     }
 
-    private static function getMetadataField($item, string $field): string
+    private static function getMetadataValue($item, string $field): array
     {
+        $values = [];
         if ($field === 'Collection') {
             return $item->getDisplayTitle(); // @todo make this work!
         }
-        return strip_tags(metadata($item, ['Dublin Core', $field]));
+        foreach (metadata($item, ['Dublin Core', $field], ['all' => true]) as $metadatum) {
+            $values[] = trim(strip_tags($metadatum));
+        }
+        return $values;
     }
 }
