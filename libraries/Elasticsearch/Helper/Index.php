@@ -117,7 +117,7 @@ class Elasticsearch_Helper_Index
 
         $acl = Zend_Registry::get('bootstrap')->getResource('Acl');
         if (!$acl->isAllowed(current_user(), 'Search', 'showNotPublic')) {
-            //$query->addFilter(Elasticsearch_Model_TermQuery::build('public', true));
+            $query->addFilter(Elasticsearch_Model_TermQuery::build('public', true));
         }
         return self::sendSearchQuery($query);
     }
