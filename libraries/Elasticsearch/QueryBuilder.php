@@ -22,9 +22,15 @@ class Elasticsearch_QueryBuilder
     {
         $size = 15;
         $page = $query_params['page'] ?? 1;
+        $offset = ($page - 1) * $size;
+
+        if (! isset($query_params['sort'])) {
+            $query_params['sort'] = 'date';
+            $query_params['sort_dir'] = 'desc';
+        }
         $sort = $query_params['sort'] ?? null;
         $sort_dir = $query_params['sort_dir'] ?? 'asc';
-        $offset = ($page - 1) * $size;
+
         unset($query_params['page'], $query_params['sort'], $query_params['sort_dir']);
 
         $facets = array_filter($query_params, [$this, 'isFacet'], ARRAY_FILTER_USE_KEY);

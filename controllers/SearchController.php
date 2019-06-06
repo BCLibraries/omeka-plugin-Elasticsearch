@@ -69,7 +69,7 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
      */
     private function buildSortOptionList(): array
     {
-        $current_sort = new Elasticsearch_Model_Sort('_score', 'desc');
+        $current_sort = new Elasticsearch_Model_Sort('date', 'desc');
 
         if ($this->_request->sort) {
             $sort_dir = $this->_request->sort_dir ?: 'asc';
