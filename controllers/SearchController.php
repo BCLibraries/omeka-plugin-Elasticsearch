@@ -11,8 +11,7 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
 
     public function indexAction(): void
     {
-        $limit = (int)get_option('per_page_public');
-        $limit = $limit ?? 20;
+        $limit = 15;
         $page = $this->_request->page ?: 1;
         $start = ($page - 1) * $limit;
 
