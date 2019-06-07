@@ -59,7 +59,7 @@ class Elasticsearch_QueryBuilder
 
     private function buildSubQuery($field, $value): Elasticsearch_Model_SubQuery
     {
-        return ($field === 'date') ? $this->dateQuery($value) : $this->queryString($field, $value);
+        return ($field === 'year') ? $this->dateQuery($value) : $this->queryString($field, $value);
     }
 
     private function buildFilter($facet_name, $value): Elasticsearch_Model_TermQuery
@@ -72,15 +72,29 @@ class Elasticsearch_QueryBuilder
         return strpos($field, 'facet_') === 0;
     }
 
+    private function isRange($field): bool
+    {
+        return strpos($field, 'min_') === 0 && strpos($field, 'max_')  === 0;
+    }
+
     /**
      * @param $value
      * @return Elasticsearch_Model_DateRangeQuery
      */
-    private function dateQuery($value): Elasticsearch_Model_DateRangeQuery
+    private function dateQuery($value): Elasticsearch_Model_RangeQuery
     {
-        return Elasticsearch_Model_DateRangeQuery::build('date')
-            ->greaterThanOrEqualTo($value[0])
-            ->lessThanOrEqualTo($value[1]);
+        $parts = explode('-', $value);
+
+        $query = Elasticsearch_Model_RangeQuery::build('year');
+        if ($parts[0] !== '_') {
+            $query->greaterThanOrEqualTo($parts[0]);
+        }
+
+        if ($parts[1] !== '_') {
+            $query->lessThanOrEqualTo($parts[1]);
+        }
+
+        return $query;
     }
 
     /**
