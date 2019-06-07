@@ -38,7 +38,7 @@ class Elasticsearch_QueryBuilder
 
         $empty_subquery = Elasticsearch_Model_MatchAllQuery::build();
 
-        $subqueries = empty($search_terms) ? $empty_subquery : array_map(
+        $subqueries = empty($search_terms) ? [$empty_subquery] : array_map(
             [$this, 'buildSubQuery'],
             array_keys($search_terms),
             $search_terms);
