@@ -27,7 +27,7 @@ class Elasticsearch_Model_Query
                 ]
             ],
             'aggregations' => $aggregations->toObject(),
-            'sort' => ['_score']
+            'sort' => ['date']
         ];
     }
 

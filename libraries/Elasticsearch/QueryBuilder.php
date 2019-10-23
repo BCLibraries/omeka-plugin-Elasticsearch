@@ -26,7 +26,7 @@ class Elasticsearch_QueryBuilder
 
         if (! isset($query_params['sort'])) {
             $query_params['sort'] = 'date';
-            $query_params['sort_dir'] = 'desc';
+            $query_params['sort_dir'] = 'asc';
         }
         $sort = $query_params['sort'] ?? null;
         $sort_dir = $query_params['sort_dir'] ?? 'asc';

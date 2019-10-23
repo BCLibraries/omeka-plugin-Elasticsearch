@@ -79,7 +79,7 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
      */
     private function buildSortOptionList(): array
     {
-        $current_sort = new Elasticsearch_Model_Sort('date', 'desc');
+        $current_sort = new Elasticsearch_Model_Sort('date', 'asc');
 
         if ($this->_request->sort) {
             $sort_dir = $this->_request->sort_dir ?: 'asc';
@@ -88,7 +88,7 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
 
         $sort_options = [
             $this->buildSortOption('Newest', 'date', 'desc'),
-            $this->buildSortOption('Oldest', 'date'),
+            $this->buildSortOption('Oldest', 'date', 'asc'),
             $this->buildSortOption('Sender (A-Z)', 'facet_sender'),
             $this->buildSortOption('Sender (Z-A)', 'facet_sender', 'desc'),
             $this->buildSortOption('From (A-Z)', 'facet_from'),
@@ -113,7 +113,7 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
      * @return stdClass
      * @throws Elasticsearch_Exception_BadQueryException
      */
-    private function buildSortOption(string $label, string $field, string $direction = 'asc'): \stdClass
+    private function buildSortOption(string $label, string $field='date', string $direction = 'asc'): \stdClass
     {
         $option = new stdClass();
         $option->sort = new Elasticsearch_Model_Sort($field, $direction);
