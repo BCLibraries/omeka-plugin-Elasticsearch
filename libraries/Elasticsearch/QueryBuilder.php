@@ -20,7 +20,7 @@ class Elasticsearch_QueryBuilder
      */
     public function build(array $query_params, array $aggregations): Elasticsearch_Model_Query
     {
-        $size = 15;
+        $size = 9999;
         $page = $query_params['page'] ?? 1;
         $offset = ($page - 1) * $size;
 
