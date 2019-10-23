@@ -23,11 +23,20 @@ class Elasticsearch_Model_Facet
      */
     public $buckets;
 
+    /**
+     * @var string
+     */
+    public $url;
+
     public function __construct(string $label, string $name, string $field, array $buckets)
     {
         $this->label = $label;
         $this->name = $name;
         $this->field = $field;
         $this->buckets = $buckets;
+    }
+
+    public function setUrl($url) {
+        $this->url = $url;
     }
 }

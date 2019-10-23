@@ -55,8 +55,13 @@ class Elasticsearch_Model_Aggregation
         return $this->name;
     }
 
-    public function getField(): string {
+    public function getField(): string
+    {
         return $this->field;
     }
 
+    public function setSize(int $size): string
+    {
+        $this->size = $size;
+    }
 }

@@ -21,6 +21,7 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
         // execute query
         $results = null;
         try {
+            Zend_Registry::set('current_es_query', $query);
             $results = Elasticsearch_Helper_Index::search([
                 'query' => $query,
                 'sort' => $sort,
@@ -38,6 +39,16 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
 
         $sorts = $this->buildSortOptionList();
 
+        $unlinked_aggregations = $results['aggregations'] ?? [];
+
+        $aggregations = [];
+
+        foreach ($unlinked_aggregations as $name => $aggregation) {
+            $aggregation['url'] = "/elasticsearch/facet/$name?".$_SERVER['QUERY_STRING'];
+            $aggregations[$name] = $aggregation;
+        }
+
+        $this->view->assign('aggregations', $aggregations);
         $this->view->assign('query', $query);
         $this->view->assign('results', $results);
         $this->view->assign('sorts', $sorts);
@@ -45,10 +56,9 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
 
     private function _getSearchParams(): array
     {
-        $query = [
+        return [
             'q' => $this->_request->q, // search terms
         ];
-        return $query;
     }
 
     private function _getSortParams(): array
@@ -89,17 +99,50 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
         return array_map(function (stdClass $option) use ($current_sort) {
             if ($option->sort == $current_sort) {
                 $option->selected = 'selected';
+            } else {
+                $option->selected = false;
             }
             return $option;
         }, $sort_options);
     }
 
-    private function buildSortOption(string $label, string $field, string $direction = 'asc')
+    /**
+     * @param string $label
+     * @param string $field
+     * @param string $direction
+     * @return stdClass
+     * @throws Elasticsearch_Exception_BadQueryException
+     */
+    private function buildSortOption(string $label, string $field, string $direction = 'asc'): \stdClass
     {
         $option = new stdClass();
         $option->sort = new Elasticsearch_Model_Sort($field, $direction);
         $option->url = $option->sort->url();
         $option->label = $label;
         return $option;
+    }
+
+    public function facetAction(): void
+    {
+        $name = $this->_request->name;
+
+        $builder = new Elasticsearch_QueryBuilder();
+
+        $aggregation = Elasticsearch_Config::custom()->getAggregations($name)[0];
+
+
+        $aggregation->setSize(2000000);
+
+
+        $query = $builder->build($_GET, [$aggregation]);
+        $query->limit(0);
+
+        $acl = Zend_Registry::get('bootstrap')->getResource('Acl');
+        if (!$acl->isAllowed(current_user(), 'Search', 'showNotPublic')) {
+            $query->addFilter(Elasticsearch_Model_TermQuery::build('public', true));
+        }
+
+
+        //return self::sendSearchQuery($query);
     }
 }

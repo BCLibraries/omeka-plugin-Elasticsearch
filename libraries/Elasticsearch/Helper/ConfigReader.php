@@ -27,13 +27,19 @@ class Elasticsearch_Helper_ConfigReader
     }
 
     /**
+     * @param string|null $label
      * @return Elasticsearch_Model_Aggregation[]
      */
-    public function getAggregations(): array
+    public function getAggregations(string $label = null): array
     {
         if (!isset($this->aggregations)) {
             $this->load();
         }
+
+        if ($label) {
+            return isset($this->aggregations[$label]) ? [$this->aggregations[$label]] : [];
+        }
+
         return $this->aggregations;
     }
 
@@ -70,7 +76,7 @@ class Elasticsearch_Helper_ConfigReader
             return null;
         }
         $agg_json = $field_json->aggregation;
-        $agg = new Elasticsearch_Model_Aggregation($agg_json->name, $agg_json->label, $field_json->name);
+        $agg = new Elasticsearch_Model_Aggregation($agg_json->name, $agg_json->label, $field_json->name, 11);
         $this->aggregations[$agg->getLabel()] = $agg;
         return $agg;
     }

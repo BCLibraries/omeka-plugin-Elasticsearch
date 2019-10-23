@@ -190,6 +190,7 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      */
     protected function _getElementTexts($record, $options = array())
     {
+        _log("Logging {$record->id}");
         $opt_normalize = isset($options['normalize']) ? (bool)$options['normalize'] : true;
 
         // Retrieve all of the element texts (each element could have several texts - multi-valued)
@@ -211,9 +212,14 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
                         'text' => []
                     ];
                     $elementOrderById[] = $element->id;
-                    if ($nameNormalized === 'date') {
-                        $new_date = DateTime::createFromFormat('Y-m-d', trim($elementText->text));
+                    if ($nameNormalized === 'datesubmitted') {
+
+                        $potential_date = $elementText->text;
+                        $potential_date = str_replace('-00','-01',$potential_date);
+
+                        $new_date = DateTime::createFromFormat('Y-m-d', trim($potential_date));
                         $elementText->text = $new_date->format('Y-m-d');
+
                     }
                 }
                 $elementById[$element->id]['text'][] = trim($elementText->text);

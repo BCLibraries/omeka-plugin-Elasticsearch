@@ -79,6 +79,8 @@ class Elasticsearch_Helper_Aggregations
                 );
             }
 
+            $facet->setUrl($result_agg['url']);
+
             if (count($facet->buckets) > 0) {
                 $facets[] = $facet;
             }
