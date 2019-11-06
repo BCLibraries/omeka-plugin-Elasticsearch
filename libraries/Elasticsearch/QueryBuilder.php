@@ -79,7 +79,7 @@ class Elasticsearch_QueryBuilder
 
     /**
      * @param $value
-     * @return Elasticsearch_Model_DateRangeQuery
+     * @return Elasticsearch_Model_RangeQuery
      */
     private function dateQuery($value): Elasticsearch_Model_RangeQuery
     {
@@ -98,22 +98,65 @@ class Elasticsearch_QueryBuilder
     }
 
     /**
+     * Build a query string for a subquery
+     *
+     * Handles both keyword ("q") and non-keyword subqueries
+     *
      * @param $field
      * @param $value
      * @return Elasticsearch_Model_QueryStringQuery
      */
     private function queryString($field, $value): Elasticsearch_Model_SubQuery
     {
-        $query = Elasticsearch_Model_QueryStringQuery::build($value);
-
-        if ($field !== 'q') {
-            $query->defaultField($field);
-        } else {
-            if (!$value) {
-                $query = Elasticsearch_Model_MatchAllQuery::build();
-            }
+        // If the value is an array, it is a non-keyword query
+        if (is_array($value)) {
+            return $this->buildNonKeywordQueryString($field, $value);
         }
 
+        // Keyword query with no value. Return an empty query.
+        if (!$value) {
+            return Elasticsearch_Model_MatchAllQuery::build();
+        }
+
+        // Regular keyword query.
+        return Elasticsearch_Model_QueryStringQuery::build($value);
+    }
+
+    /**
+     * Builds a query string for a non-keyword field
+     *
+     * To accommodate multiple values, non-keyword fields are passed in $_GET as an array
+     * of arrays, e.g.:
+     *
+     *    'from' => [
+     *                [
+     *                   'or' => 'Turin'
+     *                ],
+     *                [
+     *                    'or' => 'Genoa'
+     *                ],
+     *             ]
+     *
+     * This function reduces such an array to 'Turin OR Genoa'.
+     *
+     * @param $field
+     * @param $value_list
+     * @return Elasticsearch_Model_QueryStringQuery
+     */
+    private function buildNonKeywordQueryString($field, $value_list): Elasticsearch_Model_QueryStringQuery
+    {
+        // For now, remove anything without an explicit "OR" indicator.
+        $value_list = array_filter($value_list, function($value) {
+            return isset($value['or']);
+        });
+
+        // Join all the values into a query string
+        $value_string = array_reduce($value_list, function ($value_string, $value) {
+            return $value_string ? "$value_string OR {$value['or']}" : (string)$value['or'];
+        });
+
+        $query = Elasticsearch_Model_QueryStringQuery::build($value_string);
+        $query->defaultField($field);
         return $query;
     }
 }
