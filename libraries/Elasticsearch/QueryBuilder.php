@@ -78,12 +78,22 @@ class Elasticsearch_QueryBuilder
     }
 
     /**
+     * Build a date query from a string
+     *
+     * The string should be a range of the format "1843-1844". If there is only one value, the entire search string
+     * will be used as a minimum and maximum.
+     *
      * @param $value
      * @return Elasticsearch_Model_RangeQuery
      */
     private function dateQuery($value): Elasticsearch_Model_RangeQuery
     {
         $parts = explode('-', $value);
+
+        // If
+        if (count($parts) === 1) {
+            $parts = [$value, $value];
+        }
 
         $query = Elasticsearch_Model_RangeQuery::build('year');
         if ($parts[0] !== '_') {
