@@ -24,7 +24,7 @@ class Elasticsearch_Model_Query
                 'bool' => [
                     'must' => array_map([$this, 'subQueryToArray'], $subqueries),
                     'filter' => array_map([$this, 'subQueryToArray'], $filters)
-                ]
+                ],
             ],
             'aggregations' => $aggregations->toObject(),
             'sort' => ['date']

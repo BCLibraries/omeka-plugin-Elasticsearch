@@ -218,6 +218,11 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
                         $potential_date = str_replace('-00','-01',$potential_date);
 
                         $new_date = DateTime::createFromFormat('Y-m-d', trim($potential_date));
+
+                        if ($new_date === false) {
+                            $new_date = DateTime::createFromFormat('Y-m-d', '2000-01-01');
+                        }
+
                         $elementText->text = $new_date->format('Y-m-d');
 
                     }

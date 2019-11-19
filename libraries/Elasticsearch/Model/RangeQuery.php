@@ -56,10 +56,6 @@ class Elasticsearch_Model_RangeQuery implements Elasticsearch_Model_SubQuery
 
     private function setRangeParameter(string $operator, string $date): Elasticsearch_Model_RangeQuery
     {
-        // Only accept years for now.
-        if (!preg_match('/^\d\d\d\d$/', $date)) {
-            throw new Elasticsearch_Exception_BadQueryException('Date queries must be years in the format yyyy');
-        }
         $this->query_array[$operator] = $date;
         return $this;
     }

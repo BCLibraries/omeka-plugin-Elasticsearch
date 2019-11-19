@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/Model/SubQuery.php';
+require_once __DIR__ . '/Model/ShouldQuery.php';
 require_once __DIR__ . '/Model/MatchAllQuery.php';
 require_once __DIR__ . '/Model/QueryStringQuery.php';
 require_once __DIR__ . '/Model/DateRangeQuery.php';
@@ -24,7 +25,7 @@ class Elasticsearch_QueryBuilder
         $page = $query_params['page'] ?? 1;
         $offset = ($page - 1) * $size;
 
-        if (! isset($query_params['sort'])) {
+        if (!isset($query_params['sort'])) {
             $query_params['sort'] = 'date';
             $query_params['sort_dir'] = 'asc';
         }
@@ -59,7 +60,7 @@ class Elasticsearch_QueryBuilder
 
     private function buildSubQuery($field, $value): Elasticsearch_Model_SubQuery
     {
-        return ($field === 'year') ? $this->dateQuery($value) : $this->queryString($field, $value);
+        return ($field === 'date_range') ? $this->dateQuery($value) : $this->queryString($field, $value);
     }
 
     private function buildFilter($facet_name, $value): Elasticsearch_Model_TermQuery
@@ -74,7 +75,7 @@ class Elasticsearch_QueryBuilder
 
     private function isRange($field): bool
     {
-        return strpos($field, 'min_') === 0 && strpos($field, 'max_')  === 0;
+        return strpos($field, 'min_') === 0 && strpos($field, 'max_') === 0;
     }
 
     /**
@@ -86,25 +87,26 @@ class Elasticsearch_QueryBuilder
      * @param $value
      * @return Elasticsearch_Model_RangeQuery
      */
-    private function dateQuery($value): Elasticsearch_Model_RangeQuery
+    private function dateQuery($value): Elasticsearch_Model_ShouldQuery
     {
-        $parts = explode('-', $value);
+        $shoulds = [];
 
-        // If
-        if (count($parts) === 1) {
-            $parts = [$value, $value];
+        foreach ($value as $date_range) {
+            $parts = explode(' – ', $date_range['or']);
+
+            $should = Elasticsearch_Model_RangeQuery::build('date');
+            if ($parts[0] !== '_') {
+                $should->greaterThanOrEqualTo($parts[0]);
+            }
+
+            if ($parts[1] !== '_') {
+                $should->lessThanOrEqualTo($parts[1]);
+            }
+
+            $shoulds[] = $should;
         }
 
-        $query = Elasticsearch_Model_RangeQuery::build('year');
-        if ($parts[0] !== '_') {
-            $query->greaterThanOrEqualTo($parts[0]);
-        }
-
-        if ($parts[1] !== '_') {
-            $query->lessThanOrEqualTo($parts[1]);
-        }
-
-        return $query;
+        return new Elasticsearch_Model_ShouldQuery($shoulds);
     }
 
     /**
@@ -156,7 +158,7 @@ class Elasticsearch_QueryBuilder
     private function buildNonKeywordQueryString($field, $value_list): Elasticsearch_Model_QueryStringQuery
     {
         // For now, remove anything without an explicit "OR" indicator.
-        $value_list = array_filter($value_list, function($value) {
+        $value_list = array_filter($value_list, function ($value) {
             return isset($value['or']);
         });
 
