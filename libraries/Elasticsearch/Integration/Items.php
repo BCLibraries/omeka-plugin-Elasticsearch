@@ -215,7 +215,7 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
                     if ($nameNormalized === 'datesubmitted') {
 
                         $potential_date = $elementText->text;
-                        $potential_date = str_replace('-00','-01',$potential_date);
+                        $potential_date = str_replace('-00', '-01', $potential_date);
 
                         $new_date = DateTime::createFromFormat('Y-m-d', trim($potential_date));
 
@@ -263,16 +263,16 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
 
             if ($field->getRegex()) {
                 $regex = $field->getRegex();
-                $values = array_map(function($value) use ($regex) {
+                $values = array_map(function ($value) use ($regex) {
                     $matches = [];
                     preg_match($regex, $value, $matches);
                     $value = $matches[0];
                     return $value;
-                },$values);
+                }, $values);
             }
 
             if ($field->getType() === 'integer') {
-                $values = array_map('intval',$values);
+                $values = array_map('intval', $values);
             }
 
             $fields[$field->getName()] = $values;
@@ -286,9 +286,27 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
         if ($field === 'Collection') {
             return $item->getDisplayTitle(); // @todo make this work!
         }
+
+        if ($field === 'Has Version') {
+            $number_text = metadata($item, ['Dublin Core', 'Has Version'], ['all' => true])[0];
+            return [(int)preg_replace('/^.+ +/', '', $number_text)];
+        }
+
+        if ($field === 'Call Number') {
+            $archive = self::getField($item, 'Identifier')[0];
+            $folder = self::getField($item, 'Has Format')[0];
+            $number = self::getField($item, 'Has Version')[0];
+            return ["$archive, $folder, $number"];
+        }
+
         foreach (metadata($item, ['Dublin Core', $field], ['all' => true]) as $metadatum) {
             $values[] = trim(strip_tags($metadatum));
         }
         return $values;
+    }
+
+    protected static function getField($item, string $field): array
+    {
+        return metadata($item, ['Dublin Core', $field], ['no_filter' => true, 'all' => true]);
     }
 }
