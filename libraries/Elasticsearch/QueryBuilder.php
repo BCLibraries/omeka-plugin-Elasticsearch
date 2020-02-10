@@ -60,7 +60,14 @@ class Elasticsearch_QueryBuilder
 
     private function buildSubQuery($field, $value): Elasticsearch_Model_SubQuery
     {
-        return ($field === 'date_range') ? $this->dateQuery($value) : $this->queryString($field, $value);
+        switch ($field) {
+            case 'date_range':
+                return $this->dateQuery($value);
+            case 'number':
+                return $this->rangeQuery($value, $field);
+            default:
+                return $this->queryString($field, $value);
+        }
     }
 
     private function buildFilter($facet_name, $value): Elasticsearch_Model_TermQuery
@@ -95,6 +102,27 @@ class Elasticsearch_QueryBuilder
             $parts = explode(' – ', $date_range['or']);
 
             $should = Elasticsearch_Model_RangeQuery::build('date');
+            if ($parts[0] !== '_') {
+                $should->greaterThanOrEqualTo($parts[0]);
+            }
+
+            if ($parts[1] !== '_') {
+                $should->lessThanOrEqualTo($parts[1]);
+            }
+
+            $shoulds[] = $should;
+        }
+
+        return new Elasticsearch_Model_ShouldQuery($shoulds);
+    }
+
+    private function rangeQuery($value, $field) {
+        $shoulds = [];
+
+        foreach ($value as $number_range) {
+            $parts = explode(' – ', $number_range['or']);
+
+            $should = Elasticsearch_Model_RangeQuery::build($field);
             if ($parts[0] !== '_') {
                 $should->greaterThanOrEqualTo($parts[0]);
             }

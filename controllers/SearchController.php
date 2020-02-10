@@ -44,10 +44,11 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
         $aggregations = [];
 
         foreach ($unlinked_aggregations as $name => $aggregation) {
-            $aggregation['url'] = "/elasticsearch/facet/$name?".$_SERVER['QUERY_STRING'];
+            $aggregation['url'] = "/elasticsearch/facet/$name?" . $_SERVER['QUERY_STRING'];
             $aggregations[$name] = $aggregation;
         }
 
+        $this->view->assign('constraint_list', new Elasticsearch_Model_SearchConstraintList());
         $this->view->assign('aggregations', $aggregations);
         $this->view->assign('query', $query);
         $this->view->assign('results', $results);
@@ -92,7 +93,7 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
             $this->buildSortOption('Sender (A-Z)', 'facet_sender'),
             $this->buildSortOption('Sender (Z-A)', 'facet_sender', 'desc'),
             $this->buildSortOption('From (A-Z)', 'facet_from'),
-            $this->buildSortOption('From (Z-A)', 'facet_from','desc'),
+            $this->buildSortOption('From (Z-A)', 'facet_from', 'desc'),
             $this->buildSortOption('Relevance', '_score', 'desc')
         ];
 
@@ -113,7 +114,7 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
      * @return stdClass
      * @throws Elasticsearch_Exception_BadQueryException
      */
-    private function buildSortOption(string $label, string $field='date', string $direction = 'asc'): \stdClass
+    private function buildSortOption(string $label, string $field = 'date', string $direction = 'asc'): \stdClass
     {
         $option = new stdClass();
         $option->sort = new Elasticsearch_Model_Sort($field, $direction);

@@ -17,12 +17,8 @@ $destinations_heading = count($elements['publisher']) > 1 ? 'Destinations' : 'De
 
 ?>
 <ul>
-    <?php if ($recipients): ?>
-        <li title="recipient"><b><?= $recipients_heading ?>:</b> <?= $recipients ?></li>
-    <?php endif; ?>
+    <li title="recipient"><b><?= $recipients_heading ?>:</b> <?= $recipients ?></li>
 
-    <?php if ($destinations): ?>
-        <li title="destination"><b><?= $destinations_heading ?>:</b> <?= $destinations ?></li>
-    <?php endif; ?>
+    <li title="destination"><b><?= $destinations_heading ?>:</b> <?= $destinations ?></li>
 </ul>
 

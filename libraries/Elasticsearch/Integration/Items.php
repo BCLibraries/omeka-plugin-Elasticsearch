@@ -94,6 +94,7 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
      */
     public function getItemDocument(Item $item)
     {
+        _log("Logging item {$item->id}");
         $doc = new Elasticsearch_Document($this->_docIndex, "item_{$item->id}");
         $fields = [
             'resulttype' => 'Item',
@@ -227,6 +228,11 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
 
                     }
                 }
+                if ($elementText->text === 'yes' || $elementText->text === 'no') {
+                    $this->_log("{$record->id}:::{$element->id} has value '{$elementText->text}'");
+                } elseif ($elementText->text === 'Yes' || $elementText->text === 'No') {
+                    $this->_log("{$record->id}:::{$element->id} has value '{$elementText->text}'");
+                }
                 $elementById[$element->id]['text'][] = trim($elementText->text);
             }
 
@@ -243,6 +249,7 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
             $element[$data['name']] = $data['text'];
         }
 
+        _log("...logged {$record->id}");
         return array('elements' => $elements, 'element' => $element);
     }
 

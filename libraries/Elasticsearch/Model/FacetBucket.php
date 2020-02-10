@@ -64,7 +64,6 @@ class Elasticsearch_Model_FacetBucket
      */
     private function urlWithoutQuery(): string
     {
-        $uri_without_query_string = "//$_SERVER[HTTP_HOST]" . strtok($_SERVER['REQUEST_URI'], '?');
-        return $uri_without_query_string;
+        return "//$_SERVER[HTTP_HOST]" . strtok($_SERVER['REQUEST_URI'], '?');
     }
 }
