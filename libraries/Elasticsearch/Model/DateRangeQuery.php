@@ -27,21 +27,25 @@ class Elasticsearch_Model_DateRangeQuery implements Elasticsearch_Model_SubQuery
 
     public function greaterThan(string $date): Elasticsearch_Model_DateRangeQuery
     {
+        $date = str_replace('"', '', $date);
         return $this->setRangeParameter('gt', $date);
     }
 
     public function greaterThanOrEqualTo(string $date): Elasticsearch_Model_DateRangeQuery
     {
+        $date = str_replace('"', '', $date);
         return $this->setRangeParameter('gte', $date);
     }
 
     public function lessThan(string $date): Elasticsearch_Model_DateRangeQuery
     {
+        $date = str_replace('"', '', $date);
         return $this->setRangeParameter('lt', $date);
     }
 
     public function lessThanOrEqualTo(string $date): Elasticsearch_Model_DateRangeQuery
     {
+        $date = str_replace('"', '', $date);
         return $this->setRangeParameter('lte', $date);
     }
 

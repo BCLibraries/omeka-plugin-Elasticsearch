@@ -56,6 +56,7 @@ class Elasticsearch_Model_RangeQuery implements Elasticsearch_Model_SubQuery
 
     private function setRangeParameter(string $operator, string $date): Elasticsearch_Model_RangeQuery
     {
+        $date = str_replace('"','', $date);
         $this->query_array[$operator] = $date;
         return $this;
     }
