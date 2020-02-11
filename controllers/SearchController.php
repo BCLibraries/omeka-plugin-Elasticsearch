@@ -123,18 +123,30 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
         return $option;
     }
 
+    /**
+     * Get JSON describing a facet
+     *
+     * @throws Elasticsearch_Exception_BadQueryException
+     */
     public function facetAction(): void
     {
         $name = $this->_request->name;
 
-        $builder = new Elasticsearch_QueryBuilder();
+        $aggregations = Elasticsearch_Config::custom()->getAggregations();
 
-        $aggregation = Elasticsearch_Config::custom()->getAggregations($name)[0];
+        $aggregation = null;
+        $i = 0;
 
+        foreach (array_keys($aggregations) as $key) {
+            if ($aggregations[$key]->getName() === $name) {
+                $aggregation = $aggregations[$key];
+
+            }
+        }
 
         $aggregation->setSize(2000000);
 
-
+        $builder = new Elasticsearch_QueryBuilder();
         $query = $builder->build($_GET, [$aggregation]);
         $query->limit(0);
 
@@ -143,7 +155,19 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
             $query->addFilter(Elasticsearch_Model_TermQuery::build('public', true));
         }
 
+        // Fetch and build the response.
+        $result = Elasticsearch_Helper_Index::sendSearchQuery($query);
 
-        //return self::sendSearchQuery($query);
+        $response = [
+            'name' => $name,
+            'label' => $aggregation->getLabel(),
+            'field' => $aggregation->getField(),
+            'total' => $result['aggregations']["{$name}_count"]['value'],
+            'buckets' => $result['aggregations'][$name]['buckets'],
+        ];
+
+        // Send JSON.
+        $helper = new Omeka_Controller_Action_Helper_JsonApi();
+        $helper->direct($response);
     }
 }

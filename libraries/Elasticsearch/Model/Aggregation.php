@@ -60,7 +60,7 @@ class Elasticsearch_Model_Aggregation
         return $this->field;
     }
 
-    public function setSize(int $size): string
+    public function setSize(int $size)
     {
         $this->size = $size;
     }

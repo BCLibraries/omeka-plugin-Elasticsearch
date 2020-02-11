@@ -162,7 +162,7 @@ class Elasticsearch_Helper_Index
      * @param Elasticsearch_Model_Query $query
      * @return mixed
      */
-    private static function sendSearchQuery(Elasticsearch_Model_Query $query)
+    public static function sendSearchQuery(Elasticsearch_Model_Query $query)
     {
         $data_string = json_encode($query->toArray());
 

@@ -28,6 +28,9 @@ class Elasticsearch_Model_Facet
      */
     public $url;
 
+    /** @var int */
+    public $total;
+
     public function __construct(string $label, string $name, string $field, array $buckets)
     {
         $this->label = $label;
@@ -38,5 +41,15 @@ class Elasticsearch_Model_Facet
 
     public function setUrl($url) {
         $this->url = $url;
+    }
+
+    public function getTotal(): int
+    {
+        return $this->total;
+    }
+
+    public function setTotal(int $total): void
+    {
+        $this->total = $total;
     }
 }

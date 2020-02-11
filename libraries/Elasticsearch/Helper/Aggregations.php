@@ -68,6 +68,7 @@ class Elasticsearch_Helper_Aggregations
             );
 
             $result_agg = $json_aggregations[$aggregation->getName()];
+            $count_agg = $json_aggregations[$aggregation->getName().'_count'];
 
             foreach ($result_agg['buckets'] as $bucket) {
                 $facet->buckets[] = new Elasticsearch_Model_FacetBucket(
@@ -80,6 +81,7 @@ class Elasticsearch_Helper_Aggregations
             }
 
             $facet->setUrl($result_agg['url']);
+            $facet->setTotal($count_agg['value']);
 
             if (count($facet->buckets) > 0) {
                 $facets[] = $facet;
