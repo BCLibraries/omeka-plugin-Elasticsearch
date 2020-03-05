@@ -5,6 +5,12 @@
 
 <?php $totalResults = $results['hits']['total'] ?? 0; ?>
 
+<?php
+
+$facets = $query['facets'] ?? [];
+
+?>
+
 <div class="container">
 
     <h2 class="search-results-heading">Search results</h2>
@@ -12,11 +18,6 @@
     <div id="elasticsearch-help" style="display:none;">
         <?= $this->partial('search/partials/help.php') ?>
     </div>
-
-    <!-- RESULTS -->
-    <?php
-    //echo "<!--".json_encode($results, JSON_PRETTY_PRINT)."-->";
-    ?>
 
     <?php if ($results): ?>
         <div class="row">
@@ -62,7 +63,8 @@
 
 <?= foot() ?>
 
-<?= js_tag('indipetae.bundle') ?>
+<?= js_tag('indipetae.bundle', $dir = 'javascripts', $version = '2020021101') ?>
 <script>
+    OmekaElasticsearch.addAggregations();
     OmekaElasticsearch.resultSorter();
 </script>
