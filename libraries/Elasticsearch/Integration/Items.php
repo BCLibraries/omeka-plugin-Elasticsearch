@@ -268,6 +268,15 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
 
             $values = self::getMetadataValue($source, $origin);
 
+            if ($field->getName() === 'facet_sort_sender') {
+                $values = array_map(function ($value) {
+                    $value = mb_strtolower($value);
+                    $value = str_replace(' ', '', $value);
+                    return $value;
+                }, $values);
+            }
+
+
             if ($field->getRegex()) {
                 $regex = $field->getRegex();
                 $values = array_map(function ($value) use ($regex) {
@@ -295,8 +304,8 @@ class Elasticsearch_Integration_Items extends Elasticsearch_Integration_BaseInte
         }
 
         if ($field === 'Has Version') {
-            $number_text = metadata($item, ['Dublin Core', 'Has Version'], ['all' => true])[0];
-            return [(int)preg_replace('/^.+ +/', '', $number_text)];
+            $number_text = self::getField($item, 'Has Version')[0];
+            return [(int)preg_replace('/[^0-9]/', '', $number_text)];
         }
 
         if ($field === 'Call Number') {

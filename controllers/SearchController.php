@@ -90,8 +90,8 @@ class Elasticsearch_SearchController extends Omeka_Controller_AbstractActionCont
         $sort_options = [
             $this->buildSortOption('Newest', 'date', 'desc'),
             $this->buildSortOption('Oldest', 'date', 'asc'),
-            $this->buildSortOption('Sender (A-Z)', 'facet_sender'),
-            $this->buildSortOption('Sender (Z-A)', 'facet_sender', 'desc'),
+            $this->buildSortOption('Sender (A-Z)', 'facet_sort_sender'),
+            $this->buildSortOption('Sender (Z-A)', 'facet_sort_sender', 'desc'),
             $this->buildSortOption('From (A-Z)', 'facet_from'),
             $this->buildSortOption('From (Z-A)', 'facet_from', 'desc'),
             $this->buildSortOption('Relevance', '_score', 'desc')
